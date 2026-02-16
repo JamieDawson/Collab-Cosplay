@@ -1,6 +1,6 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useS3Image } from "../../hooks/useS3Image";
 import { InstagramEmbed } from "react-social-media-embed";
 
@@ -64,6 +64,8 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [confirmDeletedPopup, setConfirmDeletedPopup] = useState(false);
   const [adToDelete, setAdToDelete] = useState<number | null>(null);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   
   // Parse images from instagram_post_url (can be single string or JSON array)
   const images = useMemo(() => parseImages(ad.instagram_post_url), [ad.instagram_post_url]);
@@ -116,6 +118,43 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
     }
   };
 
+  const handleImageClick = (imageUrl: string) => {
+    setSelectedImageUrl(imageUrl);
+    setShowImageModal(true);
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeImageModal = useCallback(() => {
+    setShowImageModal(false);
+    setSelectedImageUrl(null);
+    // Restore body scroll
+    document.body.style.overflow = 'unset';
+  }, []);
+
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Close modal if clicking on backdrop (not the image itself)
+    if (e.target === e.currentTarget) {
+      closeImageModal();
+    }
+  };
+
+  // Handle ESC key to close modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showImageModal) {
+        closeImageModal();
+      }
+    };
+
+    if (showImageModal) {
+      document.addEventListener('keydown', handleEscape);
+      return () => {
+        document.removeEventListener('keydown', handleEscape);
+      };
+    }
+  }, [showImageModal, closeImageModal]);
+
   return (
     <>
       <div className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col w-full max-w-sm transition-transform hover:scale-[1.02] hover:shadow-xl">
@@ -161,7 +200,8 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
               <img
                 src={singleImageUrl}
                 alt={ad.title}
-                className="w-full max-w-[350px] h-auto object-contain rounded-lg"
+                className="w-full max-w-[350px] h-auto object-contain rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={() => handleImageClick(singleImageUrl)}
                 onError={(e) => {
                   console.error("Image failed to load:", singleImageUrl);
                   e.currentTarget.style.display = "none";
@@ -172,7 +212,13 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
             // Multiple images: display in a grid/carousel
             <div className="w-full max-w-[350px] grid grid-cols-2 gap-2 p-2">
               {images.map((image, index) => (
-                <ImageItem key={index} image={image} title={ad.title} index={index} />
+                <ImageItem 
+                  key={index} 
+                  image={image} 
+                  title={ad.title} 
+                  index={index}
+                  onImageClick={handleImageClick}
+                />
               ))}
             </div>
           )}
@@ -242,6 +288,43 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
           </div>
         </div>
       )}
+
+      {/* Image Modal Overlay */}
+      {showImageModal && selectedImageUrl && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[100] p-4"
+          onClick={handleBackdropClick}
+        >
+          <div className="relative max-w-7xl max-h-[90vh] w-full h-full flex items-center justify-center">
+            {/* Close Button */}
+            <button
+              onClick={closeImageModal}
+              className="absolute top-4 right-4 z-10 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full p-2 transition-all shadow-lg"
+              aria-label="Close image"
+            >
+              <svg
+                className="w-6 h-6 text-gray-800"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+            
+            {/* Image */}
+            <img
+              src={selectedImageUrl}
+              alt={ad.title}
+              className="max-w-full max-h-full object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking image
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 };
@@ -249,7 +332,12 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
 /**
  * Component to display a single image (S3 or Instagram)
  */
-const ImageItem: React.FC<{ image: string; title: string; index: number }> = ({ image, title, index }) => {
+const ImageItem: React.FC<{ 
+  image: string; 
+  title: string; 
+  index: number;
+  onImageClick?: (imageUrl: string) => void;
+}> = ({ image, title, index, onImageClick }) => {
   const isInstagram = isInstagramUrl(image);
   const { imageUrl, loading, error } = useS3Image(
     !isInstagram ? image : null
@@ -283,7 +371,8 @@ const ImageItem: React.FC<{ image: string; title: string; index: number }> = ({ 
     <img
       src={imageUrl}
       alt={`${title} - Image ${index + 1}`}
-      className="w-full h-full object-cover rounded-lg"
+      className="w-full h-full object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+      onClick={() => onImageClick?.(imageUrl)}
       onError={(e) => {
         console.error("Image failed to load:", imageUrl);
         e.currentTarget.style.display = "none";
