@@ -58,7 +58,7 @@ function popupHtml(m: MarkerItem): string {
   </div>`;
 }
 
-/** Renders markers in a Leaflet MarkerClusterGroup. Clicking a cluster navigates to the location page (ads by country/state/city). */
+/** Renders markers in a Leaflet MarkerClusterGroup. Clicking (when zoomed in enough) navigates to the location page (ads by country/state/city). */
 function MarkerClusterLayer({ markers }: { markers: MarkerItem[] }) {
   const map = useMap();
   const navigate = useNavigate();
@@ -66,6 +66,8 @@ function MarkerClusterLayer({ markers }: { markers: MarkerItem[] }) {
   useEffect(() => {
     const LMC = L as typeof L & { markerClusterGroup: (opts?: object) => L.LayerGroup };
     if (!LMC.markerClusterGroup || !map) return;
+
+    const MIN_NAV_ZOOM = 6;
 
     const group = LMC.markerClusterGroup({
       chunkedLoading: true,
@@ -109,7 +111,12 @@ function MarkerClusterLayer({ markers }: { markers: MarkerItem[] }) {
 
     // When clicking a cluster (2+ markers)
     group.on("clusterclick", (e: L.LeafletEvent) => {
-      const cluster = (e as unknown as { layer: { getAllChildMarkers: () => L.Marker[] } }).layer;
+      const cluster = (e as unknown as { layer: { getAllChildMarkers: () => L.Marker[]; zoomToBounds: () => void } }).layer;
+      // At low zooms, just zoom into the cluster instead of navigating
+      if (map.getZoom() < MIN_NAV_ZOOM) {
+        cluster.zoomToBounds();
+        return;
+      }
       const children = cluster.getAllChildMarkers();
       const first = children[0];
       const adData = (first?.options as { adData?: MarkerItem })?.adData;
@@ -119,6 +126,11 @@ function MarkerClusterLayer({ markers }: { markers: MarkerItem[] }) {
     // When clicking a single marker (in singleMarkerMode, shown as a green circle with "1")
     group.on("click", (e: L.LeafletEvent) => {
       const marker = (e as unknown as { layer: L.Marker }).layer;
+      // At low zooms, zoom into the marker instead of navigating
+      if (map.getZoom() < MIN_NAV_ZOOM) {
+        map.setView(marker.getLatLng(), MIN_NAV_ZOOM);
+        return;
+      }
       const adData = (marker?.options as { adData?: MarkerItem })?.adData;
       goToLocation(adData);
     });
