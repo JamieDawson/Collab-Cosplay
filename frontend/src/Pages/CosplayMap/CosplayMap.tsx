@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet.markercluster";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -7,7 +7,6 @@ import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
 // Fix default icon paths so markers don't 404
-// (Create React App + Leaflet needs this override.)
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
   iconUrl: markerIcon,
@@ -27,6 +26,60 @@ interface Ad {
 }
 
 type LatLng = [number, number];
+
+type MarkerItem = {
+  id: number;
+  position: LatLng;
+  title: string;
+  description: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+};
+
+function escapeHtml(s: string | null | undefined): string {
+  if (s == null) return "";
+  const t = String(s);
+  return t
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function popupHtml(m: MarkerItem): string {
+  const location =
+    [m.city, m.state, m.country].filter(Boolean).join(", ") || "—";
+  return `<div class="text-sm">
+    <div class="font-semibold mb-1">${escapeHtml(m.title)}</div>
+    ${m.description ? `<div class="mb-1 text-gray-700 line-clamp-3">${escapeHtml(m.description)}</div>` : ""}
+    <div class="text-xs text-gray-500">${escapeHtml(location)}</div>
+  </div>`;
+}
+
+/** Renders markers in a Leaflet MarkerClusterGroup so ads in the same area cluster (e.g. "2" in San Francisco). */
+function MarkerClusterLayer({ markers }: { markers: MarkerItem[] }) {
+  const map = useMap();
+
+  useEffect(() => {
+    const LMC = L as typeof L & { markerClusterGroup: (opts?: object) => L.LayerGroup };
+    if (!LMC.markerClusterGroup || !map) return;
+
+    const group = LMC.markerClusterGroup();
+    markers.forEach((m) => {
+      const marker = L.marker(m.position);
+      marker.bindPopup(popupHtml(m), { className: "cosplay-popup" });
+      group.addLayer(marker);
+    });
+    map.addLayer(group);
+
+    return () => {
+      map.removeLayer(group);
+    };
+  }, [map, markers]);
+
+  return null;
+}
 
 const CosplayMap: React.FC = () => {
   const [ads, setAds] = useState<Ad[]>([]);
@@ -112,24 +165,7 @@ const CosplayMap: React.FC = () => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {/* Marker clustering is provided by leaflet.markercluster CSS/JS */}
-        {markers.map((m) => (
-          <Marker key={m.id} position={m.position}>
-            <Popup>
-              <div className="text-sm">
-                <div className="font-semibold mb-1">{m.title}</div>
-                {m.description && (
-                  <div className="mb-1 text-gray-700 line-clamp-3">
-                    {m.description}
-                  </div>
-                )}
-                <div className="text-xs text-gray-500">
-                  {m.city}, {m.state}, {m.country}
-                </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+        <MarkerClusterLayer markers={markers} />
       </MapContainer>
     </div>
   );
