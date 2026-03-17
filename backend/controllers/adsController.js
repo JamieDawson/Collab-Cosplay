@@ -354,6 +354,22 @@ const getAdsByCity = async (req, res) => {
   }
 };
 
+// Get ads by country
+const getAdsByCountry = async (req, res) => {
+  const { country } = req.params;
+  if (!country) {
+    return res.status(400).json({ error: "country is required" });
+  }
+  try {
+    const query = `SELECT * FROM ads WHERE country = $1`;
+    const result = await pool.query(query, [country]);
+    res.status(200).json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error("Error fetching ads by country:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 //Get ads by state
 const getAdsByState = async (req, res) => {
   console.log("getAdByState");
@@ -471,6 +487,7 @@ module.exports = {
   deleteAdById,
   updateAdById,
   getAdsCountByCountry,
+  getAdsByCountry,
   getAdsByCity,
   getMostRecentAds,
   getAdsByUserId,

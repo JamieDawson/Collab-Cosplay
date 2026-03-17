@@ -6,6 +6,7 @@ const router = express.Router();
 const {
   createAd,
   getAdsCountByCountry,
+  getAdsByCountry,
   getAdsByCity,
   getMostRecentAds,
   getAdsByUserId,
@@ -28,10 +29,13 @@ router.get("/api/ads/all", getAllAds);
 // POST route to create a new ad
 router.post("/api/ads", createAd);
 
-//GEt route by state
+// GET route by country
+router.get("/api/ads/by-country/:country", getAdsByCountry);
+
+// GET route by state
 router.get("/api/ads/by-state/:country/:state", getAdsByState);
 
-//GET route to get ads by city
+// GET route to get ads by city
 router.get("/api/ads/:country/:state/:city", getAdsByCity);
 
 // GET route to get ad counts by country

@@ -6,6 +6,7 @@ import AboutPage from "./Pages/AboutPage/AboutPage";
 import AddPostPage from "./Pages/AddPostPage/AddPostPage";
 import PlacesPage from "./Pages/PlacesPage/PlacesPage";
 import LocationDetails from "./Components/LocationDetails/LocationDetails.component";
+import CountryDetails from "./Components/CountryDetails/CountryDetails.component";
 import ProfilePage from "./Pages/ProfilePage/ProfilePage";
 import ProfileCompletion from "./Components/ProfileComplete/ProfileComplete.component";
 import UpdatePostForm from "./Components/UpdatePostForm/UpdatePostForm.component";
@@ -76,6 +77,14 @@ function App() {
             element={
               <ErrorBoundary>
                 <StateDetails />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="/places/:country"
+            element={
+              <ErrorBoundary>
+                <CountryDetails />
               </ErrorBoundary>
             }
           />
