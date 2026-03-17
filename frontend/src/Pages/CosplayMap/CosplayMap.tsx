@@ -71,12 +71,23 @@ function MarkerClusterLayer({ markers }: { markers: MarkerItem[] }) {
       chunkedLoading: true,
       chunkInterval: 80,
       chunkDelay: 50,
+      singleMarkerMode: true,
+      showCoverageOnHover: false,
+      iconCreateFunction: (cluster: any) => {
+        const count = cluster.getChildCount();
+        return L.divIcon({
+          html: `<div style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:9999px;background:#22c55e;color:white;font-weight:700;font-size:14px;box-shadow:0 0 0 2px #bbf7d0;">${count}</div>`,
+          className: "",
+          iconSize: L.point(36, 36, true),
+        });
+      },
     });
 
     markers.forEach((m) => {
       const marker = L.marker(m.position, {
         adData: m,
       } as L.MarkerOptions);
+      // Popup is optional now; main interaction is cluster click -> navigate
       marker.bindPopup(popupHtml(m), { className: "cosplay-popup" });
       group.addLayer(marker);
     });
@@ -86,15 +97,30 @@ function MarkerClusterLayer({ markers }: { markers: MarkerItem[] }) {
     if (typeof groupWithHandler._zoomOrSpiderfy === "function") {
       group.off("clusterclick", groupWithHandler._zoomOrSpiderfy, group);
     }
+
+    const goToLocation = (adData?: MarkerItem) => {
+      if (adData?.country && adData?.state && adData?.city) {
+        const path = `/places/${encodeURIComponent(adData.country)}/${encodeURIComponent(
+          adData.state
+        )}/${encodeURIComponent(adData.city)}`;
+        navigate(path);
+      }
+    };
+
+    // When clicking a cluster (2+ markers)
     group.on("clusterclick", (e: L.LeafletEvent) => {
       const cluster = (e as unknown as { layer: { getAllChildMarkers: () => L.Marker[] } }).layer;
       const children = cluster.getAllChildMarkers();
       const first = children[0];
       const adData = (first?.options as { adData?: MarkerItem })?.adData;
-      if (adData?.country && adData?.state && adData?.city) {
-        const path = `/places/${encodeURIComponent(adData.country)}/${encodeURIComponent(adData.state)}/${encodeURIComponent(adData.city)}`;
-        navigate(path);
-      }
+      goToLocation(adData);
+    });
+
+    // When clicking a single marker (in singleMarkerMode, shown as a green circle with "1")
+    group.on("click", (e: L.LeafletEvent) => {
+      const marker = (e as unknown as { layer: L.Marker }).layer;
+      const adData = (marker?.options as { adData?: MarkerItem })?.adData;
+      goToLocation(adData);
     });
 
     return () => {
