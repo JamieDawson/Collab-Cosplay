@@ -9,6 +9,8 @@ const createAd = async (req, res) => {
     country,
     state,
     city,
+    lat,
+    lng,
     imageUrl, // Legacy: single Instagram URL (for backward compatibility)
     images, // New: array of Instagram URLs
     keywords,
@@ -114,11 +116,14 @@ const createAd = async (req, res) => {
     keywords: normalizedKeywords,
   });
 
+  const latNum = lat != null && lat !== "" ? parseFloat(lat) : null;
+  const lngNum = lng != null && lng !== "" ? parseFloat(lng) : null;
+
   try {
     const query = `
       INSERT INTO ads (
-        user_id, title, description, country, state, city, instagram_post_url, keywords
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        user_id, title, description, country, state, city, lat, lng, instagram_post_url, keywords
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *;
     `;
     const values = [
@@ -128,6 +133,8 @@ const createAd = async (req, res) => {
       country || null,
       state || null,
       city || null,
+      latNum,
+      lngNum,
       urlsJson, // Store Instagram URLs (single string or JSON array)
       JSON.stringify(normalizedKeywords),
     ];
@@ -150,6 +157,8 @@ const updateAdById = async (req, res) => {
     country,
     state,
     city,
+    lat,
+    lng,
     imageUrl, // Legacy: single Instagram URL (for backward compatibility)
     images, // New: array of Instagram URLs
     keywords,
@@ -192,6 +201,9 @@ const updateAdById = async (req, res) => {
     urlsJson = imageUrl.trim();
   }
 
+  const latNum = lat != null && lat !== "" ? parseFloat(lat) : null;
+  const lngNum = lng != null && lng !== "" ? parseFloat(lng) : null;
+
   try {
     const query = `
       UPDATE ads
@@ -200,9 +212,11 @@ const updateAdById = async (req, res) => {
           country = COALESCE($3, country),
           state = COALESCE($4, state),
           city = COALESCE($5, city),
-          instagram_post_url = COALESCE($6, instagram_post_url),
-          keywords = COALESCE($7, keywords)
-      WHERE id = $8
+          lat = COALESCE($6, lat),
+          lng = COALESCE($7, lng),
+          instagram_post_url = COALESCE($8, instagram_post_url),
+          keywords = COALESCE($9, keywords)
+      WHERE id = $10
       RETURNING *;
     `;
 
@@ -212,6 +226,8 @@ const updateAdById = async (req, res) => {
       country,
       state,
       city,
+      latNum,
+      lngNum,
       urlsJson, // Store Instagram URLs (single string or JSON array, or null if not updating)
       normalizedKeywords ? JSON.stringify(normalizedKeywords) : null,
       id,
@@ -439,7 +455,7 @@ const getAdsCountByCountry = async (req, res) => {
 const getAllAds = async (req, res) => {
   try {
     const query = `
-      SELECT id, user_id, title, description, country, state, city, instagram_post_url, keywords
+      SELECT id, user_id, title, description, country, state, city, lat, lng, instagram_post_url, keywords
       FROM ads;
     `;
     const result = await pool.query(query);

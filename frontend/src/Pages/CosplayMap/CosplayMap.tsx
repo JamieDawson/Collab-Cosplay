@@ -5,7 +5,6 @@ import "leaflet.markercluster";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
-import { locationData } from "../../Data/locations";
 
 // Fix default icon paths so markers don't 404
 // (Create React App + Leaflet needs this override.)
@@ -23,35 +22,11 @@ interface Ad {
   country: string | null;
   state: string | null;
   city: string | null;
+  lat?: number | null;
+  lng?: number | null;
 }
 
 type LatLng = [number, number];
-
-// Basic coordinate lookup for the supported cities.
-// You can expand this over time as you add more locations.
-const cityCoordinates: Record<string, LatLng> = {
-  // USA, CA
-  "USA-CA-San Francisco": [37.7749, -122.4194],
-  "USA-CA-Los Angeles": [34.0522, -118.2437],
-  "USA-CA-San Diego": [32.7157, -117.1611],
-  // USA, NY
-  "USA-NY-New York": [40.7128, -74.006],
-  "USA-NY-Buffalo": [42.8864, -78.8784],
-  "USA-NY-Rochester": [43.1566, -77.6088],
-  // Canada, ON
-  "Canada-ON-Toronto": [43.6532, -79.3832],
-  "Canada-ON-Ottawa": [45.4215, -75.6972],
-  "Canada-ON-Hamilton": [43.2557, -79.8711],
-  // Canada, BC
-  "Canada-BC-Vancouver": [49.2827, -123.1207],
-  "Canada-BC-Victoria": [48.4284, -123.3656],
-  "Canada-BC-Kelowna": [49.8879, -119.496],
-};
-
-const getCityKey = (country?: string | null, state?: string | null, city?: string | null) => {
-  if (!country || !state || !city) return null;
-  return `${country}-${state}-${city}`;
-};
 
 const CosplayMap: React.FC = () => {
   const [ads, setAds] = useState<Ad[]>([]);
@@ -88,31 +63,22 @@ const CosplayMap: React.FC = () => {
 
   const markers = useMemo(() => {
     return ads
-      .map((ad) => {
-        const key = getCityKey(ad.country, ad.state, ad.city);
-        if (!key) return null;
-        const coords = cityCoordinates[key];
-        if (!coords) return null;
-
-        return {
-          id: ad.id,
-          position: coords as LatLng,
-          title: ad.title,
-          description: ad.description,
-          city: ad.city,
-          state: ad.state,
-          country: ad.country,
-        };
-      })
-      .filter(Boolean) as Array<{
-      id: number;
-      position: LatLng;
-      title: string;
-      description: string | null;
-      city: string | null;
-      state: string | null;
-      country: string | null;
-    }>;
+      .filter(
+        (ad) =>
+          ad.lat != null &&
+          ad.lng != null &&
+          !Number.isNaN(Number(ad.lat)) &&
+          !Number.isNaN(Number(ad.lng))
+      )
+      .map((ad) => ({
+        id: ad.id,
+        position: [Number(ad.lat), Number(ad.lng)] as LatLng,
+        title: ad.title,
+        description: ad.description,
+        city: ad.city,
+        state: ad.state,
+        country: ad.country,
+      }));
   }, [ads]);
 
   const defaultCenter: LatLng = [37.7749, -122.4194];
@@ -123,9 +89,8 @@ const CosplayMap: React.FC = () => {
         Cosplayer Locations Map
       </h1>
       <p className="text-sm md:text-base text-gray-600 mb-4 text-center max-w-2xl mx-auto">
-        This map shows markers for each ad based on the country, state, and city
-        selected when creating the ad. When multiple people post from the same
-        city (for example, San Francisco), their markers will cluster together.
+        Markers are shown for each ad that has a location (lat/lng) stored. Ads
+        in the same area cluster together when zoomed out.
       </p>
 
       {loading && (

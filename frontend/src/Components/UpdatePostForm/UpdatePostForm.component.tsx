@@ -4,6 +4,34 @@ import { locationData } from "../../Data/locations";
 import { useEffect, useState } from "react";
 import { useToast } from "../../hooks/useToast";
 
+/** Geocode city, state, country via Nominatim (OpenStreetMap). */
+const geocodeLocation = async (
+  city: string,
+  state: string,
+  country: string
+): Promise<{ lat: number; lng: number } | null> => {
+  const query = `${city}, ${state}, ${country}`.trim();
+  if (!query.replace(/,/g, "").trim()) return null;
+
+  const res = await fetch(
+    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
+    {
+      headers: {
+        "Accept-Language": "en",
+        "User-Agent": "CosplayCollabs/1.0 (https://github.com/cosplay-collabs)",
+      },
+    }
+  );
+  const data = await res.json();
+  if (!data || !Array.isArray(data) || data.length === 0) return null;
+
+  const lat = parseFloat(data[0].lat);
+  const lng = parseFloat(data[0].lon);
+  if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
+
+  return { lat, lng };
+};
+
 interface Ad {
   id: number;
   user_id: string;
@@ -125,9 +153,24 @@ const UpdatePostForm = () => {
         }
       }
 
+      let lat: number | null = null;
+      let lng: number | null = null;
+      if (formData.city && formData.state && formData.country) {
+        const coords = await geocodeLocation(
+          formData.city,
+          formData.state,
+          formData.country
+        );
+        if (coords) {
+          lat = coords.lat;
+          lng = coords.lng;
+        }
+      }
+
       const updateData = {
         ...formData,
         imageUrl: formData.imageUrl.trim(), // Instagram URL
+        ...(lat != null && lng != null ? { lat, lng } : {}),
       };
 
       const response = await fetch(

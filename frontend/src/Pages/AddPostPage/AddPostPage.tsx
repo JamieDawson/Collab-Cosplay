@@ -3,6 +3,34 @@ import { locationData } from "../../Data/locations";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useToast } from "../../hooks/useToast";
 
+/** Geocode city, state, country via Nominatim (OpenStreetMap). Use a descriptive User-Agent per usage policy. */
+const geocodeLocation = async (
+  city: string,
+  state: string,
+  country: string
+): Promise<{ lat: number; lng: number } | null> => {
+  const query = `${city}, ${state}, ${country}`.trim();
+  if (!query.replace(/,/g, "").trim()) return null;
+
+  const res = await fetch(
+    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
+    {
+      headers: {
+        "Accept-Language": "en",
+        "User-Agent": "CosplayCollabs/1.0 (https://github.com/cosplay-collabs)",
+      },
+    }
+  );
+  const data = await res.json();
+  if (!data || !Array.isArray(data) || data.length === 0) return null;
+
+  const lat = parseFloat(data[0].lat);
+  const lng = parseFloat(data[0].lon);
+  if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
+
+  return { lat, lng };
+};
+
 const AddPostPage: React.FC = () => {
   const { isAuthenticated, user } = useAuth0();
   const { showToast, ToastContainer } = useToast();
@@ -179,6 +207,21 @@ const AddPostPage: React.FC = () => {
         setInstagramUrlCount(instagramUrlCount + images.length);
       }
 
+      // Geocode location so we can store lat/lng for the map
+      let lat: number | null = null;
+      let lng: number | null = null;
+      if (formData.city && formData.state && formData.country) {
+        const coords = await geocodeLocation(
+          formData.city,
+          formData.state,
+          formData.country
+        );
+        if (coords) {
+          lat = coords.lat;
+          lng = coords.lng;
+        }
+      }
+
       // Use current user?.sub instead of potentially stale formData.user_id
       const adData = {
         ...formData,
@@ -187,6 +230,7 @@ const AddPostPage: React.FC = () => {
         imageType: "instagram", // Always Instagram
         // Keep imageUrl for backward compatibility (use first image)
         imageUrl: images[0] || "",
+        ...(lat != null && lng != null ? { lat, lng } : {}),
       };
 
       // Create the ad with the images
