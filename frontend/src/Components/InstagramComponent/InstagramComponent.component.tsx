@@ -11,6 +11,9 @@ interface Ad {
   description: string;
   instagram_post_url: string; // Stores Instagram URL or JSON array of Instagram URLs
   keywords: string[];
+  country?: string | null;
+  state?: string | null;
+  city?: string | null;
 }
 
 /**
@@ -69,6 +72,22 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
     } else {
       const encodedKeyword = encodeURIComponent(keyword);
       navigate(`/tags-page?q=${encodedKeyword}`);
+    }
+  };
+
+  const goToStatePage = () => {
+    if (ad.country && ad.state) {
+      navigate(
+        `/places/${encodeURIComponent(ad.country)}/${encodeURIComponent(ad.state)}`
+      );
+    }
+  };
+
+  const goToCityPage = () => {
+    if (ad.country && ad.state && ad.city) {
+      navigate(
+        `/places/${encodeURIComponent(ad.country)}/${encodeURIComponent(ad.state)}/${encodeURIComponent(ad.city)}`
+      );
     }
   };
 
@@ -163,6 +182,26 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
               ) : null
             )}
           </div>
+          {(ad.state || ad.city) && (
+            <div className="flex flex-wrap gap-2 justify-center pt-2 border-t border-gray-100">
+              {ad.state && (
+                <button
+                  onClick={goToStatePage}
+                  className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium hover:bg-slate-200 transition-colors"
+                >
+                  {ad.state}
+                </button>
+              )}
+              {ad.city && (
+                <button
+                  onClick={goToCityPage}
+                  className="px-3 py-1.5 bg-sky-100 text-sky-700 rounded-lg text-xs font-medium hover:bg-sky-200 transition-colors"
+                >
+                  {ad.city}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
