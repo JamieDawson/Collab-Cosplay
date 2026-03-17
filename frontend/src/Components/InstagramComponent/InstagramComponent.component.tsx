@@ -11,6 +11,7 @@ interface Ad {
   description: string;
   instagram_post_url: string; // Stores Instagram URL or JSON array of Instagram URLs
   keywords: string[];
+  username?: string | null; // Optional username for linking to profile
   country?: string | null;
   state?: string | null;
   city?: string | null;
@@ -75,6 +76,12 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
     }
   };
 
+  const goToUserProfile = () => {
+    if (ad.username && ad.username.trim().length > 0) {
+      navigate(`/profile/${encodeURIComponent(ad.username.trim())}`);
+    }
+  };
+
   const goToStatePage = () => {
     if (ad.country && ad.state) {
       navigate(
@@ -123,22 +130,35 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
   return (
     <>
       <div className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col w-full max-w-sm transition-transform hover:scale-[1.02] hover:shadow-xl">
-        {user?.sub === ad.user_id && (
-          <div className="flex gap-2 p-3 justify-end">
-            <button
-              onClick={() => setShowDeletePopup(true)}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
-            >
-              Delete
-            </button>
-            <button
-              onClick={() => goToUpdateForm(ad)}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
-            >
-              Update
-            </button>
+        <div className="flex items-center justify-between gap-2 p-3">
+          <div className="flex items-center gap-2">
+            {ad.username && ad.username.trim().length > 0 && (
+              <button
+                type="button"
+                onClick={goToUserProfile}
+                className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-xs font-medium hover:bg-gray-200 transition-colors"
+              >
+                @{ad.username}
+              </button>
+            )}
           </div>
-        )}
+          {user?.sub === ad.user_id && (
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowDeletePopup(true)}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => goToUpdateForm(ad)}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+              >
+                Update
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="flex justify-center items-center p-1 bg-gradient-to-br from-purple-50 to-pink-50 min-h-[400px]">
           {instagramUrls.length === 0 ? (

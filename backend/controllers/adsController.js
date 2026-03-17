@@ -269,7 +269,9 @@ const getMostRecentAds = async (req, res) => {
   console.log("Function getMostRecentAds called");
   try {
     const query = `
-      SELECT * FROM ads
+      SELECT ads.*, users.username
+      FROM ads
+      LEFT JOIN users ON ads.user_id = users.auth0_id
       ORDER BY created_at DESC
       LIMIT 10;
     `;
@@ -294,8 +296,10 @@ const getAdsByUserId = async (req, res) => {
 
   try {
     const query = `
-      SELECT * FROM ads
-      WHERE user_id = $1;
+      SELECT ads.*, users.username
+      FROM ads
+      LEFT JOIN users ON ads.user_id = users.auth0_id
+      WHERE ads.user_id = $1;
     `;
     const values = [user_id];
 
@@ -316,7 +320,9 @@ const getAdsByTag = async (req, res) => {
 
   try {
     const query = `
-      SELECT * FROM ads
+      SELECT ads.*, users.username
+      FROM ads
+      LEFT JOIN users ON ads.user_id = users.auth0_id
       WHERE EXISTS (
         SELECT 1 FROM jsonb_array_elements_text(keywords) AS kw
         WHERE kw.value = $1
@@ -340,7 +346,9 @@ const getAdsByCity = async (req, res) => {
 
   try {
     const query = `
-      SELECT * FROM ads
+      SELECT ads.*, users.username
+      FROM ads
+      LEFT JOIN users ON ads.user_id = users.auth0_id
       WHERE country = $1 AND state = $2 AND city = $3;
     `;
     const values = [country, state, city];
@@ -361,7 +369,12 @@ const getAdsByCountry = async (req, res) => {
     return res.status(400).json({ error: "country is required" });
   }
   try {
-    const query = `SELECT * FROM ads WHERE country = $1`;
+    const query = `
+      SELECT ads.*, users.username
+      FROM ads
+      LEFT JOIN users ON ads.user_id = users.auth0_id
+      WHERE ads.country = $1
+    `;
     const result = await pool.query(query, [country]);
     res.status(200).json({ success: true, data: result.rows });
   } catch (error) {
@@ -376,7 +389,12 @@ const getAdsByState = async (req, res) => {
   const { country, state } = req.params;
 
   try {
-    const query = `SELECT * FROM ads WHERE country=$1 AND state=$2`;
+    const query = `
+      SELECT ads.*, users.username
+      FROM ads
+      LEFT JOIN users ON ads.user_id = users.auth0_id
+      WHERE ads.country = $1 AND ads.state = $2
+    `;
     const values = [country, state];
     const result = await pool.query(query, values);
 
@@ -471,8 +489,20 @@ const getAdsCountByCountry = async (req, res) => {
 const getAllAds = async (req, res) => {
   try {
     const query = `
-      SELECT id, user_id, title, description, country, state, city, lat, lng, instagram_post_url, keywords
-      FROM ads;
+      SELECT ads.id,
+             ads.user_id,
+             ads.title,
+             ads.description,
+             ads.country,
+             ads.state,
+             ads.city,
+             ads.lat,
+             ads.lng,
+             ads.instagram_post_url,
+             ads.keywords,
+             users.username
+      FROM ads
+      LEFT JOIN users ON ads.user_id = users.auth0_id;
     `;
     const result = await pool.query(query);
     res.status(200).json({ success: true, data: result.rows });
