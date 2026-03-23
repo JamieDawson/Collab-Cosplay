@@ -9,6 +9,8 @@ import Masonry from "react-masonry-css";
 import { useToast } from "../../hooks/useToast";
 import { apiUrl } from "../../config/api";
 
+const MAX_ABOUT_ME_LENGTH = 200;
+
 // Define the interface for custom user data from your PostgreSQL DB
 interface CustomUserData {
   id: number;
@@ -16,6 +18,7 @@ interface CustomUserData {
   email: string;
   full_name: string;
   username: string | null;
+  about_me?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -51,6 +54,9 @@ function Profile() {
   const [popUpAfterDeleting, setPopUpAfterDeleting] = useState(false);
   /** Must match username exactly before delete is allowed */
   const [deleteUsernameConfirm, setDeleteUsernameConfirm] = useState("");
+  const [aboutMeEditorOpen, setAboutMeEditorOpen] = useState(false);
+  const [aboutMeDraft, setAboutMeDraft] = useState("");
+  const [aboutMeSaving, setAboutMeSaving] = useState(false);
 
   /**
    * Fetch user data based on the username in URL
@@ -124,6 +130,51 @@ function Profile() {
       getAdsForProfile(user.sub);
     }
   }, [customUserData?.auth0_id, user?.sub, username]);
+
+  const openAboutMeEditor = () => {
+    const current = String(customUserData?.about_me ?? "");
+    setAboutMeDraft(current.slice(0, MAX_ABOUT_ME_LENGTH));
+    setAboutMeEditorOpen(true);
+  };
+
+  const closeAboutMeEditor = () => {
+    setAboutMeEditorOpen(false);
+    setAboutMeDraft("");
+  };
+
+  const saveAboutMe = async () => {
+    if (!user?.sub) return;
+    const trimmed = aboutMeDraft.trim();
+    if (trimmed.length > MAX_ABOUT_ME_LENGTH) {
+      showToast(`About me must be ${MAX_ABOUT_ME_LENGTH} characters or less.`, "error");
+      return;
+    }
+    setAboutMeSaving(true);
+    try {
+      const response = await fetch(apiUrl("/api/users/about-me"), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ auth0_id: user.sub, about_me: trimmed }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update about me");
+      }
+      setCustomUserData((prev) =>
+        prev ? { ...prev, about_me: data.user?.about_me ?? trimmed } : prev,
+      );
+      closeAboutMeEditor();
+      showToast("About me saved!", "success");
+    } catch (err) {
+      console.error(err);
+      showToast(
+        err instanceof Error ? err.message : "Could not save about me.",
+        "error",
+      );
+    } finally {
+      setAboutMeSaving(false);
+    }
+  };
 
   const openDeleteModal = () => {
     setDeleteUsernameConfirm("");
@@ -205,6 +256,8 @@ function Profile() {
     usernameToConfirmDeletion.length > 0 &&
     deleteUsernameConfirm.trim() === usernameToConfirmDeletion;
 
+  const aboutMeText = (customUserData?.about_me ?? "").trim();
+
   return (
     <>
       <ToastContainer />
@@ -247,6 +300,45 @@ function Profile() {
             </div>
           </header>
 
+          {/* About me — everyone can read; only owner can edit (via modal + API) */}
+          <section
+            className="mb-10 rounded-2xl bg-white shadow-lg shadow-gray-200/60 border border-white/80 ring-1 ring-gray-100 overflow-hidden"
+            aria-labelledby="about-me-heading"
+          >
+            <div className="px-6 py-6 sm:px-8 sm:py-7">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0 flex-1">
+                  <h2
+                    id="about-me-heading"
+                    className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400 mb-3"
+                  >
+                    About me
+                  </h2>
+                  {aboutMeText ? (
+                    <p className="text-gray-700 text-base leading-relaxed whitespace-pre-wrap break-words">
+                      {aboutMeText}
+                    </p>
+                  ) : (
+                    <p className="text-gray-400 text-base italic">
+                      {isOwnProfile
+                        ? "You haven’t written anything here yet — tell the community a bit about yourself!"
+                        : "This cosplayer hasn’t added an about me yet."}
+                    </p>
+                  )}
+                </div>
+                {isOwnProfile && (
+                  <button
+                    type="button"
+                    onClick={openAboutMeEditor}
+                    className="shrink-0 inline-flex items-center justify-center px-4 py-2 rounded-xl text-sm font-semibold text-sky-700 bg-sky-50 border border-sky-100 hover:bg-sky-100 hover:border-sky-200 transition-colors"
+                  >
+                    {aboutMeText ? "Edit about me" : "Add about me"}
+                  </button>
+                )}
+              </div>
+            </div>
+          </section>
+
           {/* Render user's ads */}
           <Masonry
             breakpointCols={breakpointColumnsObj}
@@ -258,6 +350,71 @@ function Profile() {
             ))}
           </Masonry>
         </div>
+
+        {aboutMeEditorOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div
+              className="bg-white rounded-xl shadow-2xl p-6 sm:p-8 max-w-lg w-full relative"
+              role="dialog"
+              aria-labelledby="about-me-editor-title"
+            >
+              <button
+                type="button"
+                className="absolute top-4 right-4 bg-gray-200 hover:bg-gray-300 rounded-lg p-2 transition-colors text-gray-700 font-bold"
+                onClick={closeAboutMeEditor}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+              <h2
+                id="about-me-editor-title"
+                className="text-lg font-semibold text-gray-900 mb-1 pr-10"
+              >
+                About me
+              </h2>
+              <p className="text-sm text-gray-500 mb-4">
+                Max {MAX_ABOUT_ME_LENGTH} characters. This text is public on your
+                profile.
+              </p>
+              <textarea
+                id="about-me-textarea"
+                value={aboutMeDraft}
+                onChange={(e) =>
+                  setAboutMeDraft(
+                    e.target.value.slice(0, MAX_ABOUT_ME_LENGTH),
+                  )
+                }
+                rows={5}
+                maxLength={MAX_ABOUT_ME_LENGTH}
+                placeholder="Costumes you love, cons you attend, collab ideas…"
+                className="w-full px-3 py-2.5 rounded-lg border border-gray-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 focus:outline-none text-gray-900 resize-y min-h-[120px] text-sm"
+              />
+              <div className="flex justify-between items-center mt-2 mb-5 text-xs text-gray-500">
+                <span>
+                  {aboutMeDraft.length}/{MAX_ABOUT_ME_LENGTH}
+                </span>
+              </div>
+              <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end">
+                <button
+                  type="button"
+                  className="px-5 py-2 rounded-lg text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
+                  onClick={closeAboutMeEditor}
+                  disabled={aboutMeSaving}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-violet-600 hover:from-sky-600 hover:to-violet-700 disabled:opacity-50 transition-colors"
+                  onClick={saveAboutMe}
+                  disabled={aboutMeSaving}
+                >
+                  {aboutMeSaving ? "Saving…" : "Save"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {finalWarningPopup && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

@@ -68,12 +68,50 @@ const getUserByUsername = async (req, res) => {
 
     if (result.rows.length > 0) {
       console.log("Result from getUserByUsername is ", result.rows[0]);
-      res.status(200).json({ user: result.rows[0] });
+      res.status(200).json({ success: true, user: result.rows[0] });
     } else {
       res.status(404).json({ error: "User not found" });
     }
   } catch (error) {
     console.error("Error fetching user by username:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const MAX_ABOUT_ME_LENGTH = 200;
+
+/** Update only the signed-in user's about_me (auth0_id must match row). */
+const updateAboutMe = async (req, res) => {
+  const { auth0_id, about_me } = req.body;
+
+  if (!auth0_id || typeof auth0_id !== "string") {
+    return res.status(400).json({ error: "auth0_id is required" });
+  }
+
+  const text =
+    about_me === null || about_me === undefined
+      ? ""
+      : String(about_me).trim();
+
+  if (text.length > MAX_ABOUT_ME_LENGTH) {
+    return res.status(400).json({
+      error: `About me must be ${MAX_ABOUT_ME_LENGTH} characters or less`,
+    });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE users SET about_me = $1 WHERE auth0_id = $2 RETURNING *`,
+      [text, auth0_id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ success: true, user: result.rows[0] });
+  } catch (error) {
+    console.error("Error updating about_me:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -163,5 +201,6 @@ module.exports = {
   completeProfile,
   getUserByAuth0Id,
   getUserByUsername,
+  updateAboutMe,
   deleteUser,
 };
