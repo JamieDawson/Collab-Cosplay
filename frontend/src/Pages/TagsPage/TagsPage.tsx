@@ -1,8 +1,13 @@
-import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import InstagramComponent from "../../Components/InstagramComponent/InstagramComponent.component";
+import Pagination from "../../Components/Pagination/Pagination.component";
 import Masonry from "react-masonry-css";
 import { apiUrl } from "../../config/api";
+import {
+  POSTS_PER_PAGE,
+  type PaginationMeta,
+} from "../../config/pagination";
 
 interface Ad {
   id: number;
@@ -21,15 +26,26 @@ const normalizeTag = (tag: string) => tag.toLowerCase().replace(/\s+/g, "");
 
 const TagsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const queryKeyword = searchParams.get("q") || "";
+  const pageFromUrl = Math.max(
+    1,
+    parseInt(searchParams.get("page") || "1", 10) || 1,
+  );
+
   const [typedTag, setTypedTag] = useState(queryKeyword);
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null);
+
+  useEffect(() => {
+    setTypedTag(queryKeyword);
+  }, [queryKeyword]);
 
   useEffect(() => {
     const fetchAds = async () => {
       if (!queryKeyword) {
+        setAds([]);
+        setPagination(null);
         setLoading(false);
         return;
       }
@@ -39,10 +55,24 @@ const TagsPage = () => {
 
       try {
         const response = await fetch(
-          apiUrl(`/api/ads/ads-by-tag/${cleanTag}`),
+          apiUrl(
+            `/api/ads/ads-by-tag/${encodeURIComponent(cleanTag)}?page=${pageFromUrl}&limit=${POSTS_PER_PAGE}`,
+          ),
         );
         const json = await response.json();
         setAds(json.data || []);
+        if (json.pagination) {
+          setPagination(json.pagination);
+          const tp = json.pagination.totalPages as number;
+          if (pageFromUrl > tp && tp >= 1) {
+            const next = new URLSearchParams();
+            next.set("q", decodeURIComponent(queryKeyword));
+            if (tp > 1) next.set("page", String(tp));
+            setSearchParams(next, { replace: true });
+          }
+        } else {
+          setPagination(null);
+        }
       } catch (error) {
         console.error("Error fetching ads:", error);
       } finally {
@@ -51,7 +81,7 @@ const TagsPage = () => {
     };
 
     fetchAds();
-  }, [queryKeyword]);
+  }, [queryKeyword, pageFromUrl, setSearchParams]);
 
   const handleTagChange = (value: string) => {
     setTypedTag(value);
@@ -60,15 +90,36 @@ const TagsPage = () => {
   const lookupTag = (e: React.FormEvent) => {
     e.preventDefault();
     const normalized = normalizeTag(typedTag);
-    setSearchParams({ q: normalized });
+    const params = new URLSearchParams();
+    params.set("q", normalized);
+    setSearchParams(params);
   };
 
-  // ✅ When a tag is clicked, update search and input field
   const handleTagClick = (tag: string) => {
-    setTypedTag(tag); // Display original tag
+    setTypedTag(tag);
     const normalized = normalizeTag(tag);
-    setSearchParams({ q: normalized }); // Trigger search
+    const params = new URLSearchParams();
+    params.set("q", normalized);
+    setSearchParams(params);
   };
+
+  const handlePageChange = (p: number) => {
+    const next = new URLSearchParams(searchParams);
+    if (p <= 1) {
+      next.delete("page");
+    } else {
+      next.set("page", String(p));
+    }
+    if (queryKeyword) {
+      next.set("q", decodeURIComponent(queryKeyword));
+    }
+    setSearchParams(next);
+  };
+
+  const showEmptyNoResults = useMemo(
+    () => !loading && queryKeyword && ads.length === 0,
+    [loading, queryKeyword, ads.length],
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-50 py-8 px-4">
@@ -110,20 +161,29 @@ const TagsPage = () => {
             </div>
           </div>
         ) : ads.length > 0 ? (
-          <Masonry
-            breakpointCols={{ default: 3, 1024: 3, 768: 2, 640: 1 }}
-            className="my-masonry-grid"
-            columnClassName="my-masonry-grid_column"
-          >
-            {ads.map((ad) => (
-              <InstagramComponent
-                key={ad.id.toString()}
-                ad={ad}
-                onTagClick={handleTagClick}
+          <>
+            <Masonry
+              breakpointCols={{ default: 3, 1024: 3, 768: 2, 640: 1 }}
+              className="my-masonry-grid"
+              columnClassName="my-masonry-grid_column"
+            >
+              {ads.map((ad) => (
+                <InstagramComponent
+                  key={ad.id.toString()}
+                  ad={ad}
+                  onTagClick={handleTagClick}
+                />
+              ))}
+            </Masonry>
+            {pagination && (
+              <Pagination
+                pagination={pagination}
+                onPageChange={handlePageChange}
+                disabled={loading}
               />
-            ))}
-          </Masonry>
-        ) : queryKeyword ? (
+            )}
+          </>
+        ) : showEmptyNoResults ? (
           <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
             <p className="text-xl text-gray-600">No ads found for this tag.</p>
           </div>

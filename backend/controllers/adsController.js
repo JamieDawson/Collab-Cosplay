@@ -1,5 +1,18 @@
 const pool = require("../config/db");
 
+const DEFAULT_PAGE_SIZE = 6;
+const MAX_PAGE_SIZE = 50;
+
+/** Parse ?page= & ?limit= for list endpoints */
+function parsePagination(req, defaultLimit = DEFAULT_PAGE_SIZE) {
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  let limit = parseInt(req.query.limit, 10);
+  if (Number.isNaN(limit) || limit < 1) limit = defaultLimit;
+  limit = Math.min(MAX_PAGE_SIZE, limit);
+  const offset = (page - 1) * limit;
+  return { page, limit, offset };
+}
+
 //Create an ad and store it in the Postgres database.
 const createAd = async (req, res) => {
   const {
@@ -268,16 +281,30 @@ const deleteAdById = async (req, res) => {
 const getMostRecentAds = async (req, res) => {
   console.log("Function getMostRecentAds called");
   try {
-    const query = `
+    const { page, limit, offset } = parsePagination(req);
+
+    const countResult = await pool.query(
+      `SELECT COUNT(*)::int AS total FROM ads`
+    );
+    const total = countResult.rows[0].total;
+
+    const dataResult = await pool.query(
+      `
       SELECT ads.*, users.username
       FROM ads
       LEFT JOIN users ON ads.user_id = users.auth0_id
-      ORDER BY created_at DESC
-      LIMIT 10;
-    `;
-    const result = await pool.query(query);
-    console.log("getMostRecentAds: RESULT: " + result);
-    res.status(200).json({ success: true, data: result.rows });
+      ORDER BY ads.created_at DESC
+      LIMIT $1 OFFSET $2
+    `,
+      [limit, offset]
+    );
+
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    res.status(200).json({
+      success: true,
+      data: dataResult.rows,
+      pagination: { page, limit, total, totalPages },
+    });
   } catch (error) {
     console.log("getMostRecentAds error triggered");
 
@@ -295,17 +322,32 @@ const getAdsByUserId = async (req, res) => {
   console.log("Ad Function getAdsByUserId called. user_id is ", user_id);
 
   try {
-    const query = `
+    const { page, limit, offset } = parsePagination(req);
+
+    const countResult = await pool.query(
+      `SELECT COUNT(*)::int AS total FROM ads WHERE ads.user_id = $1`,
+      [user_id]
+    );
+    const total = countResult.rows[0].total;
+
+    const dataResult = await pool.query(
+      `
       SELECT ads.*, users.username
       FROM ads
       LEFT JOIN users ON ads.user_id = users.auth0_id
-      WHERE ads.user_id = $1;
-    `;
-    const values = [user_id];
+      WHERE ads.user_id = $1
+      ORDER BY ads.created_at DESC
+      LIMIT $2 OFFSET $3
+    `,
+      [user_id, limit, offset]
+    );
 
-    const result = await pool.query(query, values);
-
-    res.status(200).json({ success: true, data: result.rows });
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    res.status(200).json({
+      success: true,
+      data: dataResult.rows,
+      pagination: { page, limit, total, totalPages },
+    });
   } catch (error) {
     console.error("Error fetching ads by location:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -319,20 +361,42 @@ const getAdsByTag = async (req, res) => {
   tag = tag.toLowerCase().replace(/\s+/g, "");
 
   try {
-    const query = `
+    const { page, limit, offset } = parsePagination(req);
+
+    const countResult = await pool.query(
+      `
+      SELECT COUNT(*)::int AS total
+      FROM ads
+      WHERE EXISTS (
+        SELECT 1 FROM jsonb_array_elements_text(keywords) AS kw
+        WHERE kw.value = $1
+      )
+    `,
+      [tag]
+    );
+    const total = countResult.rows[0].total;
+
+    const dataResult = await pool.query(
+      `
       SELECT ads.*, users.username
       FROM ads
       LEFT JOIN users ON ads.user_id = users.auth0_id
       WHERE EXISTS (
         SELECT 1 FROM jsonb_array_elements_text(keywords) AS kw
         WHERE kw.value = $1
-      );
-    `;
+      )
+      ORDER BY ads.created_at DESC
+      LIMIT $2 OFFSET $3
+    `,
+      [tag, limit, offset]
+    );
 
-    const values = [tag];
-    const result = await pool.query(query, values);
-
-    res.status(200).json({ success: true, data: result.rows });
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    res.status(200).json({
+      success: true,
+      data: dataResult.rows,
+      pagination: { page, limit, total, totalPages },
+    });
   } catch (error) {
     console.error("Error fetching ads by tag:", error);
     res.status(500).json({ error: "Internal server error" });

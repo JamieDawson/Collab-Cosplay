@@ -1,13 +1,18 @@
 // ProfilePage.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate, useParams } from "react-router-dom";
 import InstagramComponent from "../../Components/InstagramComponent/InstagramComponent.component";
+import Pagination from "../../Components/Pagination/Pagination.component";
 import axios from "axios";
 import { useUser } from "../../UserContext";
 import Masonry from "react-masonry-css";
 import { useToast } from "../../hooks/useToast";
 import { apiUrl } from "../../config/api";
+import {
+  POSTS_PER_PAGE,
+  type PaginationMeta,
+} from "../../config/pagination";
 
 const MAX_ABOUT_ME_LENGTH = 200;
 
@@ -46,6 +51,11 @@ function Profile() {
   const { showToast, ToastContainer } = useToast();
 
   const [ads, setProfileAds] = useState<Ad[]>([]);
+  const [adsPagination, setAdsPagination] = useState<PaginationMeta | null>(
+    null,
+  );
+  const [adsPage, setAdsPage] = useState(1);
+  const [adsLoading, setAdsLoading] = useState(false);
   const [customUserData, setCustomUserData] = useState<CustomUserData | null>(
     null
   );
@@ -97,39 +107,62 @@ function Profile() {
     fetchUserData();
   }, [isAuthenticated, user, username, navigate, setUsername]);
 
+  const auth0ForAds = useMemo(() => {
+    if (customUserData?.auth0_id) return customUserData.auth0_id;
+    if (user?.sub && user?.nickname === username) return user.sub;
+    return null;
+  }, [customUserData?.auth0_id, user?.sub, user?.nickname, username]);
+
+  /** Reset to page 1 when opening a different profile (URL username) */
+  useEffect(() => {
+    setAdsPage(1);
+  }, [username]);
+
   /**
-   * Fetch ads created by this user.
-   * - If viewing own profile, use user.sub (auth0_id).
-   * - If viewing someone else's profile, use customUserData.auth0_id.
+   * Fetch ads for this profile (paginated, 6 per page).
    */
   useEffect(() => {
-    const getAdsForProfile = async (auth0Id: string) => {
+    if (!auth0ForAds) {
+      setProfileAds([]);
+      setAdsPagination(null);
+      return;
+    }
+
+    let cancelled = false;
+    const load = async () => {
+      setAdsLoading(true);
       try {
         const response = await fetch(
-          apiUrl(`/api/ads/user/${encodeURIComponent(auth0Id)}`),
+          apiUrl(
+            `/api/ads/user/${encodeURIComponent(auth0ForAds)}?page=${adsPage}&limit=${POSTS_PER_PAGE}`,
+          ),
         );
         const data = await response.json();
+        if (cancelled) return;
         if (data.success) {
-          // Sort ads by created_at date, newest first
-          const sortedAds = [...data.data].sort((a, b) => {
-            const dateA = new Date(a.created_at).getTime();
-            const dateB = new Date(b.created_at).getTime();
-            return dateB - dateA; // Descending order (newest first)
-          });
-          setProfileAds(sortedAds);
+          setProfileAds(data.data);
+          if (data.pagination) {
+            setAdsPagination(data.pagination);
+            const tp = data.pagination.totalPages as number;
+            if (adsPage > tp && tp >= 1) {
+              setAdsPage(tp);
+            }
+          } else {
+            setAdsPagination(null);
+          }
         }
       } catch (error) {
         console.error("Error fetching ads:", error);
+      } finally {
+        if (!cancelled) setAdsLoading(false);
       }
     };
 
-    // Only fetch ads if we have customUserData (loaded) or own profile (user.sub)
-    if (customUserData?.auth0_id) {
-      getAdsForProfile(customUserData.auth0_id);
-    } else if (user?.sub && user?.nickname === username) {
-      getAdsForProfile(user.sub);
-    }
-  }, [customUserData?.auth0_id, user?.sub, username]);
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [auth0ForAds, adsPage]);
 
   const openAboutMeEditor = () => {
     const current = String(customUserData?.about_me ?? "");
@@ -339,16 +372,39 @@ function Profile() {
             </div>
           </section>
 
-          {/* Render user's ads */}
-          <Masonry
-            breakpointCols={breakpointColumnsObj}
-            className="my-masonry-grid"
-            columnClassName="my-masonry-grid_column"
-          >
-            {ads.map((ad) => (
-              <InstagramComponent key={ad.id} ad={ad} />
-            ))}
-          </Masonry>
+          {/* User's ads (paginated) */}
+          {adsLoading && ads.length === 0 ? (
+            <p className="text-center text-gray-500 py-8">Loading posts…</p>
+          ) : (
+            <>
+              {adsLoading && ads.length > 0 && (
+                <p className="text-center text-sm text-gray-500 mb-4">
+                  Updating…
+                </p>
+              )}
+              <Masonry
+                breakpointCols={breakpointColumnsObj}
+                className="my-masonry-grid"
+                columnClassName="my-masonry-grid_column"
+              >
+                {ads.map((ad) => (
+                  <InstagramComponent key={ad.id} ad={ad} />
+                ))}
+              </Masonry>
+              {adsPagination && (
+                <Pagination
+                  pagination={adsPagination}
+                  onPageChange={setAdsPage}
+                  disabled={adsLoading}
+                />
+              )}
+              {!adsLoading && ads.length === 0 && (
+                <p className="text-center text-gray-500 py-8">
+                  No posts yet.
+                </p>
+              )}
+            </>
+          )}
         </div>
 
         {aboutMeEditorOpen && (
