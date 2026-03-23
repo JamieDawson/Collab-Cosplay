@@ -1,36 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { locationData } from "../../Data/locations";
 import { useEffect, useState } from "react";
 import { useToast } from "../../hooks/useToast";
-
-/** Geocode city, state, country via Nominatim (OpenStreetMap). */
-const geocodeLocation = async (
-  city: string,
-  state: string,
-  country: string
-): Promise<{ lat: number; lng: number } | null> => {
-  const query = `${city}, ${state}, ${country}`.trim();
-  if (!query.replace(/,/g, "").trim()) return null;
-
-  const res = await fetch(
-    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
-    {
-      headers: {
-        "Accept-Language": "en",
-        "User-Agent": "CosplayCollabs/1.0 (https://github.com/cosplay-collabs)",
-      },
-    }
-  );
-  const data = await res.json();
-  if (!data || !Array.isArray(data) || data.length === 0) return null;
-
-  const lat = parseFloat(data[0].lat);
-  const lng = parseFloat(data[0].lon);
-  if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
-
-  return { lat, lng };
-};
+import {
+  geocodeLocationWithCanonical,
+  mergeUserLocationWithCanonical,
+} from "../../utils/nominatimGeocode";
 
 interface Ad {
   id: number;
@@ -50,7 +25,6 @@ const UpdatePostForm = () => {
   const navigate = useNavigate();
   const { showToast, ToastContainer } = useToast();
   const { ad } = location.state as { ad: Ad };
-  const countryOptions = Object.keys(locationData.countries);
   const [updateButtonClicked, setUpdateButtonClicked] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -103,35 +77,6 @@ const UpdatePostForm = () => {
     });
   };
 
-  // Safely access state options
-  const stateOptions =
-    formData.country && formData.country in locationData.countries
-      ? Object.keys(
-          (
-            locationData.countries as {
-              [key: string]: { states: Record<string, string[]> };
-            }
-          )[formData.country].states
-        )
-      : [];
-
-  const cityOptions =
-    formData.state &&
-    formData.country &&
-    formData.country in locationData.countries &&
-    formData.state in
-      (
-        locationData.countries as {
-          [key: string]: { states: Record<string, string[]> };
-        }
-      )[formData.country].states
-      ? (
-          locationData.countries as {
-            [key: string]: { states: Record<string, string[]> };
-          }
-        )[formData.country].states[formData.state]
-      : [];
-
   const updateAd = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -155,20 +100,37 @@ const UpdatePostForm = () => {
 
       let lat: number | null = null;
       let lng: number | null = null;
+      let country = formData.country.trim();
+      let state = formData.state.trim();
+      let city = formData.city.trim();
       if (formData.city && formData.state && formData.country) {
-        const coords = await geocodeLocation(
+        const geo = await geocodeLocationWithCanonical(
           formData.city,
           formData.state,
           formData.country
         );
-        if (coords) {
-          lat = coords.lat;
-          lng = coords.lng;
+        if (geo) {
+          lat = geo.lat;
+          lng = geo.lng;
+          const merged = mergeUserLocationWithCanonical(
+            {
+              country: formData.country,
+              state: formData.state,
+              city: formData.city,
+            },
+            geo.canonicalPartial
+          );
+          country = merged.country;
+          state = merged.state;
+          city = merged.city;
         }
       }
 
       const updateData = {
         ...formData,
+        country,
+        state,
+        city,
         imageUrl: formData.imageUrl.trim(), // Instagram URL
         ...(lat != null && lng != null ? { lat, lng } : {}),
       };
@@ -255,49 +217,39 @@ const UpdatePostForm = () => {
               className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 resize-y min-h-[80px] text-sm md:text-base"
             />
 
-            <select
+            <input
+              type="text"
               name="country"
+              placeholder="Country (e.g., USA, United Kingdom)"
               value={formData.country}
               onChange={handleChange}
+              required
               className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm md:text-base"
-            >
-              <option value="">Select Country</option>
-              {countryOptions.map((country) => (
-                <option key={country} value={country}>
-                  {country}
-                </option>
-              ))}
-            </select>
+            />
 
-            <select
+            <input
+              type="text"
               name="state"
+              placeholder="State / Region (e.g., CA, Ontario)"
               value={formData.state}
               onChange={handleChange}
-              disabled={!formData.country}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm md:text-base"
-            >
-              <option value="">Select State</option>
-              {stateOptions.map((state) => (
-                <option key={state} value={state}>
-                  {state}
-                </option>
-              ))}
-            </select>
+              required
+              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm md:text-base"
+            />
 
-            <select
+            <input
+              type="text"
               name="city"
+              placeholder="City (e.g., San Francisco)"
               value={formData.city}
               onChange={handleChange}
-              disabled={!formData.state}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm md:text-base"
-            >
-              <option value="">Select City</option>
-              {cityOptions.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
+              required
+              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm md:text-base"
+            />
+            <p className="text-xs text-gray-500 -mt-2">
+              On save, your location is matched to OpenStreetMap so place pages group ads
+              consistently (e.g. &quot;USA&quot; and &quot;United States&quot; become the same).
+            </p>
 
             <div className="flex flex-col gap-2">
               <label

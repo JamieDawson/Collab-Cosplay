@@ -1,34 +1,10 @@
 import { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useToast } from "../../hooks/useToast";
-
-/** Geocode city, state, country via Nominatim (OpenStreetMap). Use a descriptive User-Agent per usage policy. */
-const geocodeLocation = async (
-  city: string,
-  state: string,
-  country: string,
-): Promise<{ lat: number; lng: number } | null> => {
-  const query = `${city}, ${state}, ${country}`.trim();
-  if (!query.replace(/,/g, "").trim()) return null;
-
-  const res = await fetch(
-    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
-    {
-      headers: {
-        "Accept-Language": "en",
-        "User-Agent": "CosplayCollabs/1.0 (https://github.com/cosplay-collabs)",
-      },
-    },
-  );
-  const data = await res.json();
-  if (!data || !Array.isArray(data) || data.length === 0) return null;
-
-  const lat = parseFloat(data[0].lat);
-  const lng = parseFloat(data[0].lon);
-  if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
-
-  return { lat, lng };
-};
+import {
+  geocodeLocationWithCanonical,
+  mergeUserLocationWithCanonical,
+} from "../../utils/nominatimGeocode";
 
 const AddPostPage: React.FC = () => {
   const { isAuthenticated, user } = useAuth0();
@@ -219,18 +195,32 @@ const AddPostPage: React.FC = () => {
         setInstagramUrlCount(instagramUrlCount + images.length);
       }
 
-      // Geocode location so we can store lat/lng for the map
+      // Geocode: store lat/lng and canonical country/state/city from Nominatim for consistent /places/... URLs
       let lat: number | null = null;
       let lng: number | null = null;
+      let country = formData.country.trim();
+      let state = formData.state.trim();
+      let city = formData.city.trim();
       if (formData.city && formData.state && formData.country) {
-        const coords = await geocodeLocation(
+        const geo = await geocodeLocationWithCanonical(
           formData.city,
           formData.state,
           formData.country,
         );
-        if (coords) {
-          lat = coords.lat;
-          lng = coords.lng;
+        if (geo) {
+          lat = geo.lat;
+          lng = geo.lng;
+          const merged = mergeUserLocationWithCanonical(
+            {
+              country: formData.country,
+              state: formData.state,
+              city: formData.city,
+            },
+            geo.canonicalPartial,
+          );
+          country = merged.country;
+          state = merged.state;
+          city = merged.city;
         }
       }
 
@@ -238,6 +228,9 @@ const AddPostPage: React.FC = () => {
       const adData = {
         ...formData,
         user_id: user.sub, // Always use current user.sub value
+        country,
+        state,
+        city,
         images, // Array of Instagram URLs
         imageType: "instagram", // Always Instagram
         // Keep imageUrl for backward compatibility (use first image)
@@ -387,6 +380,10 @@ const AddPostPage: React.FC = () => {
               required
               className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm md:text-base"
             />
+            <p className="text-xs text-gray-500 -mt-2">
+              We verify your location with OpenStreetMap and save the official place names so
+              everyone lands on the same city/country pages.
+            </p>
 
             {/* Instagram URLs Section */}
             <div className="flex flex-col gap-4">
