@@ -8,6 +8,7 @@ import {
   POSTS_PER_PAGE,
   type PaginationMeta,
 } from "../../config/pagination";
+import { normalizeTag } from "../../utils/tags";
 
 interface Ad {
   id: number;
@@ -20,9 +21,6 @@ interface Ad {
   state?: string;
   city?: string;
 }
-
-// ✅ Normalize tag globally
-const normalizeTag = (tag: string) => tag.toLowerCase().replace(/\s+/g, "");
 
 const TagsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
