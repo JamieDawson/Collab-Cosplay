@@ -186,7 +186,7 @@ const UpdatePostForm = () => {
   return (
     <>
       <ToastContainer />
-      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-50 py-8 px-4">
+      <div className="page-shell">
         {!isAuthenticated ? (
           <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8 text-center">
             <h2 className="text-2xl font-bold text-gray-800">

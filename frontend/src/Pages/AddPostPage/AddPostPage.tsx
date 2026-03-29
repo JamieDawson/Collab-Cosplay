@@ -321,17 +321,17 @@ const AddPostPage: React.FC = () => {
           </div>
         </div>
       )}
-      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-50 py-8 px-4">
+      <div className="page-shell">
         {!isAuthenticated ? (
-          <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8 text-center">
-            <h2 className="text-2xl font-bold text-gray-800">
+          <div className="surface-card-strong mx-auto max-w-2xl p-8 text-center">
+            <h2 className="text-2xl font-extrabold text-slate-800">
               You need an account to create an ad.
             </h2>
           </div>
         ) : (
           <form
             onSubmit={handleSubmit}
-            className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8 flex flex-col gap-4"
+            className="surface-card-strong mx-auto flex max-w-2xl flex-col gap-4 p-6 md:p-8"
           >
             <input
               maxLength={maxLengthTitle}
@@ -340,7 +340,7 @@ const AddPostPage: React.FC = () => {
               value={formData.title}
               onChange={handleChange}
               required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm md:text-base"
+              className="w-full rounded-xl border border-slate-200/90 bg-white/90 p-3 text-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 md:text-base"
             />
             <p className="text-sm text-gray-500 text-right">
               {formData.title.length}/{maxLengthTitle}
@@ -352,7 +352,7 @@ const AddPostPage: React.FC = () => {
               value={formData.description}
               onChange={handleChange}
               required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 resize-y min-h-[80px] text-sm md:text-base"
+              className="min-h-[80px] w-full resize-y rounded-xl border border-slate-200/90 bg-white/90 p-3 text-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 md:text-base"
             />
             <p className="text-sm text-gray-500 text-right">
               {formData.description.length} / {maxLengthDescription}
@@ -363,7 +363,7 @@ const AddPostPage: React.FC = () => {
               value={formData.country}
               onChange={handleChange}
               required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm md:text-base"
+              className="w-full rounded-xl border border-slate-200/90 bg-white/90 p-3 text-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 md:text-base"
             />
             <input
               name="state"
@@ -371,7 +371,7 @@ const AddPostPage: React.FC = () => {
               value={formData.state}
               onChange={handleChange}
               required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm md:text-base"
+              className="w-full rounded-xl border border-slate-200/90 bg-white/90 p-3 text-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 md:text-base"
             />
             <input
               name="city"
@@ -379,7 +379,7 @@ const AddPostPage: React.FC = () => {
               value={formData.city}
               onChange={handleChange}
               required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm md:text-base"
+              className="w-full rounded-xl border border-slate-200/90 bg-white/90 p-3 text-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 md:text-base"
             />
             <p className="text-xs text-gray-500 -mt-2">
               We verify your location with OpenStreetMap and save the official place names so
@@ -416,7 +416,7 @@ const AddPostPage: React.FC = () => {
                       handleInstagramUrlChange(index, e.target.value)
                     }
                     disabled={!canUploadInstagram && url === ""}
-                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm md:text-base"
+                    className="flex-1 rounded-xl border border-slate-200/90 bg-white/90 p-3 text-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 disabled:cursor-not-allowed disabled:bg-gray-100 md:text-base"
                   />
                   {instagramUrls.length > 1 && (
                     <button
@@ -441,13 +441,13 @@ const AddPostPage: React.FC = () => {
                 placeholder={`Keyword ${index + 1}`}
                 value={keyword}
                 onChange={(e) => handleKeywordChange(index, e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm md:text-base"
+                className="w-full rounded-xl border border-slate-200/90 bg-white/90 p-3 text-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 md:text-base"
               />
             ))}
             <button
               type="submit"
               disabled={uploading}
-              className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-bold text-base md:text-lg mt-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="mt-2 w-full rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 py-3 text-base font-bold text-white shadow-md shadow-sky-400/25 transition-all hover:from-sky-400 hover:to-pink-400 disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-400 disabled:shadow-none md:text-lg"
             >
               {uploading ? "Uploading..." : "Create Ad"}
             </button>

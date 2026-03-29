@@ -62,7 +62,7 @@ class ErrorBoundary extends Component<Props, State> {
 
       // Default fallback UI
       return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-50 flex items-center justify-center p-4">
+        <div className="page-shell flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl w-full">
             <div className="text-center">
               <div className="text-6xl mb-4">⚠️</div>

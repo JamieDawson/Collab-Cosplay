@@ -18,7 +18,7 @@ import CosplayMap from "./Pages/CosplayMap/CosplayMap";
 function App() {
   return (
     <Router>
-      <div className="App">
+      <div className="App min-h-screen font-sans antialiased">
         <ErrorBoundary>
           <NavBar />
         </ErrorBoundary>

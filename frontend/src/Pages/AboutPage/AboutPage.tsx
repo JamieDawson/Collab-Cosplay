@@ -2,11 +2,11 @@ import { Link } from "react-router-dom";
 
 const AboutPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-50 py-8 px-4">
+    <div className="page-shell">
       <div className="max-w-5xl mx-auto">
         {/* Header Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 mb-8">
-          <h1 className="text-5xl font-bold text-gray-800 mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+        <div className="surface-card-strong p-8 md:p-12 mb-8">
+          <h1 className="text-5xl font-extrabold tracking-tight mb-4 text-gradient-brand">
             Find Your Next Cosplay Collab
           </h1>
           <p className="text-xl text-gray-600 leading-relaxed">
@@ -15,13 +15,13 @@ const AboutPage: React.FC = () => {
         </div>
 
         {/* Getting Started Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 mb-8">
+        <div className="surface-card-strong p-8 md:p-12 mb-8">
           <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-            <span className="w-10 h-10 bg-purple-500 text-white rounded-full flex items-center justify-center text-xl font-bold">1</span>
+            <span className="w-10 h-10 bg-gradient-to-br from-sky-500 to-cyan-500 text-white rounded-full flex items-center justify-center text-xl font-bold shadow-md shadow-sky-300/50">1</span>
             Getting Started
           </h2>
           <div className="space-y-4 text-gray-700">
-            <div className="flex items-start gap-4 p-4 bg-purple-50 rounded-lg">
+            <div className="flex items-start gap-4 p-4 bg-sky-50/90 rounded-xl border border-sky-100/80">
               <span className="text-2xl">👤</span>
               <div>
                 <h3 className="font-semibold text-lg mb-2">Create an Account</h3>
@@ -30,7 +30,7 @@ const AboutPage: React.FC = () => {
                 </p>
               </div>
             </div>
-            <div className="flex items-start gap-4 p-4 bg-pink-50 rounded-lg">
+            <div className="flex items-start gap-4 p-4 bg-pink-50/90 rounded-xl border border-pink-100/80">
               <span className="text-2xl">✏️</span>
               <div>
                 <h3 className="font-semibold text-lg mb-2">Pick a Username</h3>
@@ -43,16 +43,16 @@ const AboutPage: React.FC = () => {
         </div>
 
         {/* Creating Ads Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 mb-8">
+        <div className="surface-card-strong p-8 md:p-12 mb-8">
           <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-            <span className="w-10 h-10 bg-purple-500 text-white rounded-full flex items-center justify-center text-xl font-bold">2</span>
+            <span className="w-10 h-10 bg-gradient-to-br from-fuchsia-500 to-pink-500 text-white rounded-full flex items-center justify-center text-xl font-bold shadow-md shadow-pink-300/50">2</span>
             Creating Your First Ad
           </h2>
           <div className="space-y-4 text-gray-700">
-            <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-l-4 border-purple-500">
+            <div className="p-4 bg-gradient-to-r from-sky-50 to-pink-50 rounded-xl border-l-4 border-sky-500">
               <h3 className="font-semibold text-lg mb-3">Go to “Add Post”</h3>
               <p className="text-gray-600 mb-3">
-                Click <Link to="/add-post" className="text-purple-600 hover:text-purple-700 font-semibold underline">Add Post</Link> to start a new cosplay ad in seconds.
+                Click <Link to="/add-post" className="text-sky-600 hover:text-fuchsia-600 font-semibold underline">Add Post</Link> to start a new cosplay ad in seconds.
               </p>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
@@ -80,9 +80,9 @@ const AboutPage: React.FC = () => {
                   Type your country, state, and city and we’ll drop a pin on the map.
                 </p>
               </div>
-              <div className="p-4 bg-purple-50 rounded-lg">
+              <div className="p-4 bg-fuchsia-50/90 rounded-lg border border-fuchsia-100/70">
                 <h4 className="font-semibold mb-2 flex items-center gap-2">
-                  <span className="text-purple-600">🏷️</span> Tags
+                  <span className="text-fuchsia-600">🏷️</span> Tags
                 </h4>
                 <p className="text-sm text-gray-600">
                   Add a few simple tags (like “anime” or “photoshoot”) so people can find you fast.
@@ -93,43 +93,43 @@ const AboutPage: React.FC = () => {
         </div>
 
         {/* Browsing & Searching Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 mb-8">
+        <div className="surface-card-strong p-8 md:p-12 mb-8">
           <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-            <span className="w-10 h-10 bg-purple-500 text-white rounded-full flex items-center justify-center text-xl font-bold">3</span>
+            <span className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-sky-500 text-white rounded-full flex items-center justify-center text-xl font-bold shadow-md shadow-indigo-300/40">3</span>
             Finding Cosplay Collaborations
           </h2>
           <div className="space-y-6">
-            <div className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl">
+            <div className="p-6 bg-gradient-to-br from-sky-50 to-indigo-50 rounded-xl border border-sky-100/60">
               <h3 className="font-semibold text-xl mb-3 flex items-center gap-2">
                 <span className="text-2xl">🏠</span> Home
               </h3>
               <p className="text-gray-700 mb-3">
-                The <Link to="/" className="text-purple-600 hover:text-purple-700 font-semibold underline">Home</Link> feed shows the newest cosplay ads from everyone.
+                The <Link to="/" className="text-sky-600 hover:text-fuchsia-600 font-semibold underline">Home</Link> feed shows the newest cosplay ads from everyone.
               </p>
             </div>
-            <div className="p-6 bg-gradient-to-br from-pink-50 to-purple-50 rounded-xl">
+            <div className="p-6 bg-gradient-to-br from-pink-50 to-fuchsia-50 rounded-xl border border-pink-100/60">
               <h3 className="font-semibold text-xl mb-3 flex items-center gap-2">
                 <span className="text-2xl">🔍</span> Search by tags
               </h3>
               <p className="text-gray-700 mb-3">
-                Use <Link to="/tags-page" className="text-purple-600 hover:text-purple-700 font-semibold underline">Search tags</Link> to jump straight to ads that match a keyword.
+                Use <Link to="/tags-page" className="text-fuchsia-600 hover:text-sky-600 font-semibold underline">Search tags</Link> to jump straight to ads that match a keyword.
               </p>
             </div>
-            <div className="p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl">
+            <div className="p-6 bg-gradient-to-br from-cyan-50 to-sky-50 rounded-xl border border-cyan-100/60">
               <h3 className="font-semibold text-xl mb-3 flex items-center gap-2">
                 <span className="text-2xl">🗺️</span> Map
               </h3>
               <p className="text-gray-700 mb-3">
-                Open the <Link to="/cosplay-map" className="text-purple-600 hover:text-purple-700 font-semibold underline">map</Link> to see every ad as a pin and tap a city to view its posts.
+                Open the <Link to="/cosplay-map" className="text-sky-600 hover:text-pink-600 font-semibold underline">map</Link> to see every ad as a pin and tap a city to view its posts.
               </p>
             </div>
           </div>
         </div>
 
         {/* Managing Your Content Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 mb-8">
+        <div className="surface-card-strong p-8 md:p-12 mb-8">
           <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-            <span className="w-10 h-10 bg-purple-500 text-white rounded-full flex items-center justify-center text-xl font-bold">4</span>
+            <span className="w-10 h-10 bg-gradient-to-br from-slate-600 to-slate-800 text-white rounded-full flex items-center justify-center text-xl font-bold shadow-md">4</span>
             Managing Your Content
           </h2>
           <div className="space-y-4">
@@ -150,7 +150,7 @@ const AboutPage: React.FC = () => {
         </div>
 
         {/* Tips Section */}
-        <div className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl shadow-lg p-8 md:p-12 text-white">
+        <div className="rounded-2xl bg-gradient-cta p-8 md:p-12 text-white shadow-brand-lg">
           <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
             <span className="text-3xl">💡</span> Pro Tips
           </h2>

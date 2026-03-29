@@ -82,11 +82,11 @@ const HomePage: React.FC = () => {
 
   if (loading && frontPageAds.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-50 py-8 px-4">
+      <div className="page-shell">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+          <div className="surface-card-strong p-10 text-center">
             <div className="flex flex-col items-center justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
+              <div className="mb-4 h-12 w-12 animate-spin rounded-full border-2 border-sky-400 border-t-transparent"></div>
               <p className="text-xl text-gray-600">Loading ads...</p>
             </div>
           </div>
@@ -96,7 +96,7 @@ const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-50 py-8 px-4">
+    <div className="page-shell">
       <div className="max-w-7xl mx-auto">
         {loading && (
           <p className="text-center text-sm text-gray-500 mb-4">Updating…</p>
@@ -124,7 +124,7 @@ const HomePage: React.FC = () => {
         )}
 
         {!loading && frontPageAds.length === 0 && (
-          <div className="bg-white rounded-2xl shadow-lg p-8 text-center text-gray-600">
+          <div className="surface-card-strong p-10 text-center text-slate-600">
             No posts yet.
           </div>
         )}

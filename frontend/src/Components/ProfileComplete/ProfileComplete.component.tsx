@@ -48,7 +48,7 @@ const ProfileCompletion: React.FC = () => {
   return (
     <>
       <ToastContainer />
-      <div className="min-h-screen bg-gradient-to-br from-sky-100 via-pink-50 to-blue-100 py-10 px-4 flex items-center justify-center">
+      <div className="page-shell flex min-h-screen items-center justify-center py-10 px-4">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-2xl shadow-xl border border-sky-100/90 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-600 via-sky-500 to-pink-500 px-6 py-8 text-center">

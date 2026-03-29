@@ -5,9 +5,7 @@
 @layer base {
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-      "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-      sans-serif;
+    font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -18,26 +16,77 @@
   }
 }
 
+/* Full-page blue ↔ pink atmosphere (replaces repeated purple gradients) */
+@layer components {
+  .page-shell {
+    @apply min-h-screen py-8 px-4 relative;
+    background: linear-gradient(
+      155deg,
+      #dbeafe 0%,
+      #e0f2fe 22%,
+      #fce7f3 52%,
+      #f5d0fe 78%,
+      #e0e7ff 100%
+    );
+  }
+
+  .page-shell::before {
+    content: "";
+    @apply pointer-events-none fixed inset-0 z-0;
+    background: radial-gradient(
+        ellipse 90% 70% at 0% -10%,
+        rgba(56, 189, 248, 0.22),
+        transparent 55%
+      ),
+      radial-gradient(
+        ellipse 70% 55% at 100% 0%,
+        rgba(244, 114, 182, 0.2),
+        transparent 50%
+      ),
+      radial-gradient(
+        ellipse 60% 45% at 50% 100%,
+        rgba(129, 140, 248, 0.12),
+        transparent 50%
+      );
+  }
+
+  .page-shell > * {
+    @apply relative z-[1];
+  }
+
+  .surface-card {
+    @apply rounded-2xl border border-white/70 bg-white/90 shadow-brand backdrop-blur-md;
+  }
+
+  .surface-card-strong {
+    @apply rounded-2xl border border-slate-200/60 bg-white shadow-brand-lg ring-1 ring-slate-200/40;
+  }
+
+  .text-gradient-brand {
+    @apply bg-gradient-to-r from-sky-600 via-fuchsia-500 to-pink-500 bg-clip-text text-transparent;
+  }
+}
+
 @layer utilities {
   .columns-1 {
     column-count: 1;
     column-gap: 2rem;
   }
-  
+
   .md\:columns-2 {
     @media (min-width: 768px) {
       column-count: 2;
       column-gap: 2rem;
     }
   }
-  
+
   .lg\:columns-3 {
     @media (min-width: 1024px) {
       column-count: 3;
       column-gap: 2rem;
     }
   }
-  
+
   .break-inside-avoid {
     break-inside: avoid;
     page-break-inside: avoid;

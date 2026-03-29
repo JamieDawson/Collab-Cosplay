@@ -265,7 +265,7 @@ function Profile() {
   //if (!isAuthenticated) return <div>Please log in.</div>;
   if (loading)
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-50 flex items-center justify-center">
+      <div className="page-shell flex items-center justify-center">
         <div className="text-xl font-semibold text-gray-700">
           Loading profile...
         </div>
@@ -294,7 +294,7 @@ function Profile() {
   return (
     <>
       <ToastContainer />
-      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-50 py-8 px-4">
+      <div className="page-shell">
         <div className="max-w-7xl mx-auto">
           {/* Profile header — username hero, no full name */}
           <header className="mb-10 rounded-2xl bg-white shadow-lg shadow-gray-200/60 border border-white/80 overflow-hidden ring-1 ring-gray-100">

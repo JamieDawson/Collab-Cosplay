@@ -120,12 +120,14 @@ const TagsPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-50 py-8 px-4">
+    <div className="page-shell">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">Tags Page</h2>
+        <div className="surface-card-strong mb-8 p-6 md:p-8">
+          <h2 className="mb-2 text-3xl font-extrabold tracking-tight text-gradient-brand">
+            Tags
+          </h2>
           {queryKeyword && (
-            <h3 className="text-xl text-gray-600">
+            <h3 className="text-xl text-slate-600">
               Selected keyword: {decodeURIComponent(queryKeyword)}
             </h3>
           )}
@@ -133,28 +135,28 @@ const TagsPage = () => {
 
         <form
           onSubmit={lookupTag}
-          className="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8"
+          className="surface-card-strong mb-8 p-6 md:p-8"
         >
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col gap-4 md:flex-row">
             <input
               value={typedTag}
               onChange={(e) => handleTagChange(e.target.value)}
               placeholder="Search by tag"
-              className="flex-1 p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm md:text-base"
+              className="flex-1 rounded-xl border border-slate-200/80 bg-white/80 p-3 text-sm shadow-inner focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 md:text-base"
             />
             <button
               type="submit"
-              className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium text-sm md:text-base"
+              className="rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-sky-400/25 transition-all hover:from-sky-400 hover:to-pink-400 md:text-base"
             >
-              Search Tag
+              Search tag
             </button>
           </div>
         </form>
 
         {loading ? (
-          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+          <div className="surface-card-strong p-10 text-center">
             <div className="flex flex-col items-center justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
+              <div className="mb-4 h-12 w-12 animate-spin rounded-full border-2 border-sky-400 border-t-transparent"></div>
               <p className="text-xl text-gray-600">Loading ads...</p>
             </div>
           </div>
@@ -182,8 +184,8 @@ const TagsPage = () => {
             )}
           </>
         ) : showEmptyNoResults ? (
-          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-            <p className="text-xl text-gray-600">No ads found for this tag.</p>
+          <div className="surface-card-strong p-10 text-center">
+            <p className="text-xl text-slate-600">No ads found for this tag.</p>
           </div>
         ) : null}
       </div>

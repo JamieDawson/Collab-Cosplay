@@ -200,14 +200,17 @@ const CosplayMap: React.FC = () => {
   const defaultCenter: LatLng = [37.7749, -122.4194];
 
   return (
-    <div className="w-full max-w-5xl mx-auto py-6 px-4">
-      <h1 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800 text-center">
+    <div className="page-shell">
+      <div className="mx-auto w-full max-w-5xl px-4 py-6">
+      <div className="surface-card-strong mb-6 px-6 py-8 text-center md:px-10">
+      <h1 className="mb-3 text-2xl font-extrabold tracking-tight text-gradient-brand md:text-3xl">
         Cosplayer Locations Map
       </h1>
-      <p className="text-sm md:text-base text-gray-600 mb-4 text-center max-w-2xl mx-auto">
+      <p className="mx-auto max-w-2xl text-sm text-slate-600 md:text-base">
         Click a cluster number (e.g. 3) to go to the page that lists all ads in
         that location. Click a single marker to see its popup.
       </p>
+      </div>
 
       {loading && (
         <p className="text-center text-gray-600 mb-2">Loading locations…</p>
@@ -230,6 +233,7 @@ const CosplayMap: React.FC = () => {
 
         <MarkerClusterLayer markers={markers} />
       </MapContainer>
+      </div>
     </div>
   );
 };

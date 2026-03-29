@@ -127,14 +127,14 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col w-full max-w-sm transition-transform hover:scale-[1.02] hover:shadow-xl">
+      <div className="surface-card-strong flex w-full max-w-sm flex-col overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-brand-lg">
         <div className="flex items-center justify-between gap-2 p-3">
           <div className="flex items-center gap-2">
             {ad.username && ad.username.trim().length > 0 && (
               <button
                 type="button"
                 onClick={goToUserProfile}
-                className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-xs font-medium hover:bg-gray-200 transition-colors"
+                className="rounded-full bg-gradient-to-r from-sky-100 to-pink-100 px-3 py-1.5 text-xs font-semibold text-slate-800 ring-1 ring-sky-200/60 transition-colors hover:from-sky-200 hover:to-pink-200"
               >
                 @{ad.username}
               </button>
@@ -150,7 +150,7 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
               </button>
               <button
                 onClick={() => goToUpdateForm(ad)}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+                className="rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-sky-400/30 transition-all hover:from-sky-400 hover:to-cyan-400"
               >
                 Update
               </button>
@@ -158,7 +158,7 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
           )}
         </div>
 
-        <div className="flex justify-center items-center p-1 bg-gradient-to-br from-purple-50 to-pink-50 min-h-[400px]">
+        <div className="flex min-h-[400px] items-center justify-center bg-gradient-to-br from-sky-50 via-white to-pink-50 p-1">
           {instagramUrls.length === 0 ? (
             <div className="flex flex-col items-center justify-center w-full h-full text-gray-500">
               <p className="text-sm">No Instagram post available</p>
@@ -193,7 +193,7 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
                 <button
                   onClick={() => goToTagPage(keyword)}
                   key={index}
-                  className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium hover:bg-purple-200 transition-colors"
+                  className="rounded-full bg-gradient-to-r from-fuchsia-100 to-pink-100 px-3 py-1 text-xs font-semibold text-fuchsia-800 ring-1 ring-pink-200/60 transition-colors hover:from-fuchsia-200 hover:to-pink-200"
                 >
                   #{keyword}
                 </button>

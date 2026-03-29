@@ -5,30 +5,34 @@ import SignUpButton from "../Auth0/SignUpButton/SignUpButton.component";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useUser } from "../../UserContext";
 
+const linkBase =
+  "inline-flex items-center justify-center rounded-xl px-3.5 py-2 text-sm font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900";
+
 const NavBar: React.FC = () => {
   const { user } = useAuth0();
   const { username } = useUser();
-  console.log(JSON.stringify(user));
+
   return (
-    <nav className="sticky top-0 z-50 w-full bg-gray-800 text-white shadow-lg">
-      <div className="flex justify-between items-center py-3 px-4 md:px-8">
-        <div className="text-2xl font-bold">
+    <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-gradient-nav shadow-lg shadow-sky-500/5 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-6">
+        <div className="text-xl font-extrabold tracking-tight md:text-2xl">
           <Link
             to="/"
-            className="text-white hover:text-cyan-400 transition-colors"
+            className="bg-gradient-to-r from-sky-300 via-fuchsia-300 to-pink-400 bg-clip-text text-transparent transition-opacity hover:opacity-90"
           >
             Cosplay Collabs
           </Link>
         </div>
-        <ul className="flex flex-wrap gap-4 md:gap-5 list-none m-0 p-0 pr-4 md:pr-8 items-center">
+
+        <ul className="m-0 flex list-none flex-wrap items-center justify-end gap-2 p-0 md:gap-2.5">
           {user && (
             <li className="hidden md:block">
               <Link
                 to={`/profile/${username}`}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-full text-white text-sm font-medium transition-colors shadow-md"
+                className={`${linkBase} gap-1.5 border border-pink-400/30 bg-gradient-to-r from-pink-500/90 to-fuchsia-600/90 text-white shadow-md shadow-pink-500/20 hover:from-pink-400 hover:to-fuchsia-500`}
               >
-                <span>👤</span>
-                <span>{username}</span>
+                <span aria-hidden>👤</span>
+                <span className="max-w-[10rem] truncate">{username}</span>
               </Link>
             </li>
           )}
@@ -44,7 +48,7 @@ const NavBar: React.FC = () => {
           <li>
             <Link
               to="/"
-              className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium text-sm transition-colors shadow-md"
+              className={`${linkBase} border border-sky-400/40 bg-sky-500/15 text-sky-100 hover:border-sky-300/60 hover:bg-sky-400/25`}
             >
               Home
             </Link>
@@ -52,7 +56,7 @@ const NavBar: React.FC = () => {
           <li>
             <Link
               to="/about"
-              className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium text-sm transition-colors shadow-md"
+              className={`${linkBase} border border-sky-400/40 bg-sky-500/15 text-sky-100 hover:border-sky-300/60 hover:bg-sky-400/25`}
             >
               About
             </Link>
@@ -60,33 +64,33 @@ const NavBar: React.FC = () => {
           <li>
             <Link
               to="/cosplay-map"
-              className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium text-sm transition-colors shadow-md"
+              className={`${linkBase} border border-sky-400/40 bg-sky-500/15 text-sky-100 hover:border-sky-300/60 hover:bg-sky-400/25`}
             >
-              map
+              Map
             </Link>
           </li>
           <li>
             <Link
               to="/tags-page"
-              className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium text-sm transition-colors shadow-md"
+              className={`${linkBase} border border-sky-400/40 bg-sky-500/15 text-sky-100 hover:border-sky-300/60 hover:bg-sky-400/25`}
             >
-              Search tags
+              Tags
             </Link>
           </li>
           <li>
             <Link
               to="/add-post"
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium text-sm transition-colors shadow-md"
+              className={`${linkBase} overflow-hidden border-0 bg-gradient-to-br from-sky-500 to-pink-500 text-white shadow-md shadow-pink-500/25 hover:from-sky-400 hover:to-pink-400`}
             >
               Add Post
             </Link>
           </li>
 
           {user && (
-            <li>
+            <li className="md:hidden">
               <Link
                 to={`/profile/${username}`}
-                className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium text-sm transition-colors shadow-md"
+                className={`${linkBase} border border-pink-400/30 bg-gradient-to-r from-pink-500/90 to-fuchsia-600/90 text-white`}
               >
                 Profile
               </Link>

@@ -56,7 +56,7 @@ const LocationDetails: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-50 py-8 px-4">
+      <div className="page-shell">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-4">
@@ -76,7 +76,7 @@ const LocationDetails: React.FC = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-50 py-8 px-4">
+      <div className="page-shell">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-4">
