@@ -8,7 +8,14 @@ function LogOutButton() {
 
   const handleLogout = () => {
     setUsername(null);
-    logout({ logoutParams: { returnTo: window.location.origin } });
+    logout({
+      logoutParams: {
+        returnTo: window.location.origin,
+        // Helps prevent Google from immediately re-auth-ing the same account
+        // after Auth0 logout.
+        federated: true,
+      },
+    });
   };
 
   return isAuthenticated ? (

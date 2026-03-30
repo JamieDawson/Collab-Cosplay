@@ -5,7 +5,13 @@ function LoginButton() {
   const { isAuthenticated, loginWithRedirect } = useAuth0();
 
   const handleClick = () => {
-    loginWithRedirect();
+    // Force the identity provider (Google) to show an account picker again.
+    // Without this, Auth0 may reuse the existing SSO session and keep the first account.
+    loginWithRedirect({
+      authorizationParams: {
+        prompt: "login",
+      },
+    });
   };
 
   return !isAuthenticated ? (

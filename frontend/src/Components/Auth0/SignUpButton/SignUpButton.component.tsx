@@ -7,6 +7,8 @@ function SignUpButton() {
   const handleClick = () => {
     loginWithRedirect({
       authorizationParams: {
+        // Ensures the user can pick the account they intend to sign up with.
+        prompt: "login",
         screen_hint: "signup",
       },
     });
