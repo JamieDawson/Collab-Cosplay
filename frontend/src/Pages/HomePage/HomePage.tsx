@@ -3,10 +3,7 @@ import InstagramComponent from "../../Components/InstagramComponent/InstagramCom
 import Pagination from "../../Components/Pagination/Pagination.component";
 import Masonry from "react-masonry-css";
 import { apiUrl } from "../../config/api";
-import {
-  POSTS_PER_PAGE,
-  type PaginationMeta,
-} from "../../config/pagination";
+import { POSTS_PER_PAGE, type PaginationMeta } from "../../config/pagination";
 
 interface Ad {
   _id: string;
@@ -80,10 +77,22 @@ const HomePage: React.FC = () => {
     640: 1,
   };
 
+  const feedIntro = (
+    <header className="mb-6 px-1 text-center sm:text-left">
+      <h1 className="text-2xl font-bold tracking-tight text-gray-800 md:text-3xl">
+        Latest cosplay ads
+      </h1>
+      <p className="mt-1.5 text-sm text-gray-600 md:text-base">
+        Most recent first. Everyone’s posts in one feed, newest to oldest.
+      </p>
+    </header>
+  );
+
   if (loading && frontPageAds.length === 0) {
     return (
       <div className="page-shell">
         <div className="mx-auto max-w-7xl">
+          {feedIntro}
           <div className="surface-card-strong p-10 text-center">
             <div
               className="flex flex-col items-center justify-center"
@@ -106,6 +115,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="page-shell">
       <div className="max-w-7xl mx-auto">
+        {feedIntro}
         {loading && (
           <p
             className="mb-4 text-center text-sm text-gray-500"

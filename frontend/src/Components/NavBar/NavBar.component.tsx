@@ -24,7 +24,7 @@ const NavBar: React.FC = () => {
             to="/"
             className="bg-gradient-to-r from-sky-300 via-fuchsia-300 to-pink-400 bg-clip-text text-transparent transition-opacity hover:opacity-90"
           >
-            Cosplay Collabs
+            Collabs Cosplay
           </Link>
         </div>
 
