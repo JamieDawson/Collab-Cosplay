@@ -1,4 +1,4 @@
-# 🎭 Collab Cosplay
+# 🎭 Collab Cosplay — Find and connect with cosplayers on Instagram
 
 A platform built for cosplayers to **connect, collaborate, and create together**.
 

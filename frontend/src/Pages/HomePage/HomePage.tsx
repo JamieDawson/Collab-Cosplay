@@ -92,7 +92,7 @@ const HomePage: React.FC = () => {
   const feedIntro = (
     <div className="mb-6 px-1 text-center sm:text-center">
       <h1 className="text-2xl font-bold tracking-tight text-gray-800 md:text-3xl">
-        Your #1 Instagram tool to find cosplay collaborators
+        Find and connect with cosplayers on Instagram
       </h1>
     </div>
   );
