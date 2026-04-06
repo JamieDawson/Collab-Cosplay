@@ -2,7 +2,7 @@
 
 A platform built for cosplayers to **connect, collaborate, and create together**.
 
-Whether you're looking for a photoshoot partner, a group cosplay, or just want to meet others in your fandom—Collab Cosplay helps you find your people.
+Whether you're looking for a photoshoot partner, a group cosplay, or just want to meet others in your fandom, Collab Cosplay helps you find your people.
 
 ---
 
@@ -18,7 +18,7 @@ Whether you're looking for a photoshoot partner, a group cosplay, or just want t
 
 ## ✨ The Home page:
 
-https://github.com/user-attachments/assets/d5e5505f-7e4b-4ceb-b3a3-1b984132babe
+https://github.com/user-attachments/assets/93af60e7-c377-4773-9d8c-696a694cd524
 
 ## Click user profiles to see all their post:
 
