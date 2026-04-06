@@ -45,7 +45,16 @@ This project is made up of a few independent systems that work together seamless
 
 ---
 
-### 2. 🔐 Authentication (Auth0)
+### 2. 🗺️ Interactive Map (React + Leaflet + OpenStreetMap)
+
+- Built using **React Leaflet** with **Leaflet MarkerCluster**
+- Uses **OpenStreetMap** tiles for map data (no paid APIs required)
+- Displays cosplay ads visually based on their location (lat/lng)
+- Fetches all ads from the backend (`/api/ads/all`) and converts them into map markers
+
+---
+
+### 3. 🔐 Authentication (Auth0)
 
 - Handles secure login/logout
 - After authentication, users are redirected to `/post-login`
@@ -53,7 +62,7 @@ This project is made up of a few independent systems that work together seamless
 
 ---
 
-### 3. ⚙️ Backend API (Express on Node.js)
+### 4. ⚙️ Backend API (Express on Node.js)
 
 - Located in the `backend/` directory
 - Exposes REST endpoints under `/api/...`
@@ -65,7 +74,7 @@ This project is made up of a few independent systems that work together seamless
 
 ---
 
-### 4. 🗄️ Database (Neon Postgres)
+### 5. 🗄️ Database (Neon Postgres)
 
 - Hosted PostgreSQL database via Neon
 - The backend connects using `DATABASE_URL` (with SSL enabled)
