@@ -24,7 +24,7 @@ interface Ad {
  */
 const parseInstagramUrls = (instagramPostUrl: string): string[] => {
   if (!instagramPostUrl) return [];
-  
+
   // Try to parse as JSON array
   try {
     const parsed = JSON.parse(instagramPostUrl);
@@ -34,7 +34,7 @@ const parseInstagramUrls = (instagramPostUrl: string): string[] => {
   } catch {
     // Not JSON, treat as single string
   }
-  
+
   // Single URL (string)
   return [instagramPostUrl];
 };
@@ -60,7 +60,7 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [confirmDeletedPopup, setConfirmDeletedPopup] = useState(false);
   const [adToDelete, setAdToDelete] = useState<number | null>(null);
-  
+
   // Parse Instagram URLs from instagram_post_url (can be single string or JSON array)
   const instagramUrls = parseInstagramUrls(ad.instagram_post_url);
 
@@ -86,7 +86,7 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
   const goToStatePage = () => {
     if (ad.country && ad.state) {
       navigate(
-        `/places/${encodeURIComponent(ad.country)}/${encodeURIComponent(ad.state)}`
+        `/places/${encodeURIComponent(ad.country)}/${encodeURIComponent(ad.state)}`,
       );
     }
   };
@@ -94,7 +94,7 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
   const goToCityPage = () => {
     if (ad.country && ad.state && ad.city) {
       navigate(
-        `/places/${encodeURIComponent(ad.country)}/${encodeURIComponent(ad.state)}/${encodeURIComponent(ad.city)}`
+        `/places/${encodeURIComponent(ad.country)}/${encodeURIComponent(ad.state)}/${encodeURIComponent(ad.city)}`,
       );
     }
   };
@@ -127,7 +127,7 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
 
   return (
     <>
-      <article className="surface-card-strong flex w-full max-w-sm flex-col overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-brand-lg">
+      <article className="surface-card-strong flex w-full max-w-sm flex-col overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-brand-lg mb-4">
         <div className="flex items-center justify-between gap-2 p-3">
           <div className="flex items-center gap-2">
             {ad.username && ad.username.trim().length > 0 && (
@@ -175,7 +175,10 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
             // Multiple Instagram embeds: display in a grid
             <div className="w-full max-w-[350px] grid grid-cols-2 gap-2 p-2">
               {instagramUrls.map((url, index) => (
-                <div key={index} className="w-full aspect-square transform scale-95 origin-center">
+                <div
+                  key={index}
+                  className="w-full aspect-square transform scale-95 origin-center"
+                >
                   <InstagramEmbed url={url} />
                 </div>
               ))}
@@ -202,7 +205,7 @@ const InstagramComponent: React.FC<InstagramComponentProps> = ({
                 >
                   #{keyword}
                 </button>
-              ) : null
+              ) : null,
             )}
           </div>
           {(ad.state || ad.city) && (

@@ -77,22 +77,33 @@ const HomePage: React.FC = () => {
     640: 1,
   };
 
-  const feedIntro = (
-    <header className="mb-6 px-1 text-center sm:text-left">
+  const webIntro = (
+    <div className="mb-6 px-1 text-center sm:text-left">
       <h1 className="text-2xl font-bold tracking-tight text-gray-800 md:text-3xl">
-        Latest cosplay ads
+        Latest cosplay posts
       </h1>
       <p className="mt-1.5 text-sm text-gray-600 md:text-base">
-        Most recent first. Everyone’s posts in one feed, newest to oldest.
+        Most recent firstasdfasdf Everyone’s posts in one feed, newest to
+        oldest.
       </p>
-    </header>
+    </div>
+  );
+
+  const feedIntro = (
+    <div className="mb-6 px-1 text-center sm:text-center">
+      <h1 className="text-2xl font-bold tracking-tight text-gray-800 md:text-3xl">
+        Your #1 Instagram tool to find cosplay collaborators
+      </h1>
+    </div>
   );
 
   if (loading && frontPageAds.length === 0) {
     return (
       <div className="page-shell">
         <div className="mx-auto max-w-7xl">
+          {webIntro}
           {feedIntro}
+
           <div className="surface-card-strong p-10 text-center">
             <div
               className="flex flex-col items-center justify-center"
@@ -116,6 +127,8 @@ const HomePage: React.FC = () => {
     <div className="page-shell">
       <div className="max-w-7xl mx-auto">
         {feedIntro}
+        {webIntro}
+
         {loading && (
           <p
             className="mb-4 text-center text-sm text-gray-500"
@@ -125,6 +138,7 @@ const HomePage: React.FC = () => {
             Updating…
           </p>
         )}
+
         <Masonry
           breakpointCols={breakpointColumnsObj}
           className="my-masonry-grid"

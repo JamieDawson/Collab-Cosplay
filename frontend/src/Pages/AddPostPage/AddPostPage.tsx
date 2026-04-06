@@ -280,7 +280,7 @@ const AddPostPage: React.FC = () => {
       } else {
         const errorData = await response.json();
         showToast(
-          errorData.error || "Failed to create ad. Please try again.",
+          errorData.error || "Failed to create post. Please try again.",
           "error",
         );
       }
@@ -337,7 +337,7 @@ const AddPostPage: React.FC = () => {
         {!isAuthenticated ? (
           <div className="surface-card-strong mx-auto max-w-2xl p-8 text-center">
             <h2 className="text-2xl font-extrabold text-slate-800">
-              You need an account to create an ad.
+              You need an account to create a post.
             </h2>
           </div>
         ) : (
@@ -347,7 +347,7 @@ const AddPostPage: React.FC = () => {
             aria-busy={uploading}
           >
             <h1 className="text-2xl font-extrabold text-slate-800 md:text-3xl">
-              Create an ad
+              Create a post
             </h1>
             <div className="flex flex-col gap-1">
               <label
@@ -452,9 +452,12 @@ const AddPostPage: React.FC = () => {
                 aria-describedby="add-post-location-hint"
                 className="w-full rounded-xl border border-slate-200/90 bg-white/90 p-3 text-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 md:text-base"
               />
-              <p id="add-post-location-hint" className="-mt-1 text-xs text-gray-500">
-                We verify your location with OpenStreetMap and save the official place names so
-                everyone lands on the same city/country pages.
+              <p
+                id="add-post-location-hint"
+                className="-mt-1 text-xs text-gray-500"
+              >
+                We verify your location with OpenStreetMap and save the official
+                place names so everyone lands on the same city/country pages.
               </p>
             </div>
 
@@ -514,30 +517,30 @@ const AddPostPage: React.FC = () => {
               <legend className="text-sm font-medium text-slate-700">
                 Tags (optional keywords)
               </legend>
-            {formData.keywords.map((keyword, index) => (
-              <div key={index} className="flex flex-col gap-1">
-                <label
-                  htmlFor={`add-post-keyword-${index}`}
-                  className="sr-only"
-                >
-                  Keyword {index + 1}
-                </label>
-                <input
-                  id={`add-post-keyword-${index}`}
-                  placeholder={`Keyword ${index + 1}`}
-                  value={keyword}
-                  onChange={(e) => handleKeywordChange(index, e.target.value)}
-                  className="w-full rounded-xl border border-slate-200/90 bg-white/90 p-3 text-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 md:text-base"
-                />
-              </div>
-            ))}
+              {formData.keywords.map((keyword, index) => (
+                <div key={index} className="flex flex-col gap-1">
+                  <label
+                    htmlFor={`add-post-keyword-${index}`}
+                    className="sr-only"
+                  >
+                    Keyword {index + 1}
+                  </label>
+                  <input
+                    id={`add-post-keyword-${index}`}
+                    placeholder={`Keyword ${index + 1}`}
+                    value={keyword}
+                    onChange={(e) => handleKeywordChange(index, e.target.value)}
+                    className="w-full rounded-xl border border-slate-200/90 bg-white/90 p-3 text-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 md:text-base"
+                  />
+                </div>
+              ))}
             </fieldset>
             <button
               type="submit"
               disabled={uploading}
               className="mt-2 w-full rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 py-3 text-base font-bold text-white shadow-md shadow-sky-400/25 transition-all hover:from-sky-400 hover:to-pink-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-400 disabled:shadow-none md:text-lg"
             >
-              {uploading ? "Uploading..." : "Create Ad"}
+              {uploading ? "Uploading..." : "Create Post"}
             </button>
           </form>
         )}
