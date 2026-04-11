@@ -51,8 +51,8 @@ This project is made up of a few independent systems that work together seamless
 
 - Built using **React Leaflet** with **Leaflet MarkerCluster**
 - Uses **OpenStreetMap** tiles for map data (no paid APIs required)
-- Displays cosplay ads visually based on their location (lat/lng)
-- Fetches all ads from the backend (`/api/ads/all`) and converts them into map markers
+- Displays cosplay post visually based on their location (lat/lng)
+- Fetches all post from the backend (`/api/ads/all`) and converts them into map markers
 
 ---
 
