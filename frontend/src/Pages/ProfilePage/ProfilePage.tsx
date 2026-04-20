@@ -375,7 +375,8 @@ function Profile() {
           {/* User's ads (paginated) */}
           {adsLoading && ads.length === 0 ? (
             <p className="text-center text-gray-500 py-8">
-              Loading posts. This may take a few seconds.
+              Server is spinning up (free tier cold start). Initial load may
+              take up to 20 seconds.
             </p>
           ) : (
             <>
